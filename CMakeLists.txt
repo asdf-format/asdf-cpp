@@ -12,6 +12,7 @@ set( HEADER_FILES ${INCLUDE_DIR}/asdf.hpp )
 set( SOURCE_FILES src/asdf.cpp )
 
 add_library( asdf ${SOURCE_FILES} ${HEADER_FILES} )
+target_link_libraries( asdf yaml-cpp )
 
 add_executable( asdf-test test/test.cpp )
 target_link_libraries( asdf-test asdf )
