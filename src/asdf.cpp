@@ -5,6 +5,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <error.h>
 
 #include <yaml-cpp/yaml.h>
 #include <asdf.hpp>
@@ -56,10 +57,15 @@ AsdfFile::AsdfFile(std::string filename)
     this->filename = filename;
 
     ifs.open(this->filename);
+    if (ifs.fail())
+    {
+        std::string msg("Error opening " + filename + ": ");
+        throw std::runtime_error(msg + strerror(errno));
+    }
 
     if (!parse_header(ifs))
     {
-        throw "Invalid ASDF header";
+        throw std::runtime_error("Invalid ASDF header");
     }
 
     std::streampos end_index = find_yaml_end(yaml_data, ifs);
