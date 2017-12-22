@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cstdio>
 #include <asdf.hpp>
 
@@ -11,5 +12,11 @@ int main(int argc, char **argv)
     }
 
     Asdf::AsdfFile asdf(argv[1]);
+    YAML::Node tree = asdf["top"];
 
+    std::cout << "ASDF tree:" << std::endl;
+    std::cout << tree << std::endl;
+
+    std::cout << "ASDF Subtree:" << std::endl;
+    std::cout << tree["nums"] << std::endl;
 }

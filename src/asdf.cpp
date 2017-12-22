@@ -75,12 +75,16 @@ AsdfFile::AsdfFile(std::string filename)
     ifs.seekg(0);
 
     asdf_tree = YAML::Load(yaml_data);
-    std::cout << asdf_tree["top"] << std::endl;
 }
 
 std::string AsdfFile::get_filename()
 {
     return filename;
+}
+
+YAML::Node AsdfFile::operator[] (std::string key)
+{
+    return asdf_tree[key];
 }
 
 } // namespace Asdf
