@@ -1,7 +1,10 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
+
 #include <cstdio>
 #include <cstring>
+
 #include <yaml-cpp/yaml.h>
 #include <asdf.hpp>
 
@@ -29,13 +32,13 @@ static bool parse_header(std::ifstream &ifs)
     return true;
 }
 
-static std::streampos find_yaml_end(std::ifstream &ifs)
+static std::streampos find_yaml_end(std::stringstream &yaml, std::ifstream &ifs)
 {
     std::string line;
 
     while(std::getline(ifs, line))
     {
-        std::cout << line << std::endl;
+        yaml << line << std::endl;
         if (line.compare(YAML_END_MARKER) == 0)
         {
             break;
@@ -50,6 +53,7 @@ int load_asdf_file(const char *filename)
     printf("loading %s\n", filename);
 
     std::ifstream ifs;
+    std::stringstream yaml;
     ifs.open(filename);
 
     if (!parse_header(ifs))
@@ -58,13 +62,13 @@ int load_asdf_file(const char *filename)
         return 1;
     }
 
-    std::streampos end_index = find_yaml_end(ifs);
+    std::streampos end_index = find_yaml_end(yaml, ifs);
     std::cout << "end index=" << end_index << std::endl;
 
     /* Reset stream to the beginning of the file */
     ifs.seekg(0);
 
-    YAML::Node asdf = YAML::Load(ifs);
+    YAML::Node asdf = YAML::Load(yaml);
     std::cout << asdf["top"] << std::endl;
 
 
