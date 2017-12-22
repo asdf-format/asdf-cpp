@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 #include <fstream>
 #include <sstream>
 
@@ -48,29 +49,32 @@ static std::streampos find_yaml_end(std::stringstream &yaml, std::ifstream &ifs)
     return ifs.tellg();
 }
 
-int load_asdf_file(const char *filename)
-{
-    printf("loading %s\n", filename);
+namespace Asdf {
 
-    std::ifstream ifs;
-    std::stringstream yaml;
-    ifs.open(filename);
+AsdfFile::AsdfFile(std::string filename)
+{
+    this->filename = filename;
+
+    ifs.open(this->filename);
 
     if (!parse_header(ifs))
     {
-        fprintf(stderr, "Invalid ASDF header\n");
-        return 1;
+        throw "Invalid ASDF header";
     }
 
-    std::streampos end_index = find_yaml_end(yaml, ifs);
+    std::streampos end_index = find_yaml_end(yaml_data, ifs);
     std::cout << "end index=" << end_index << std::endl;
 
     /* Reset stream to the beginning of the file */
     ifs.seekg(0);
 
-    YAML::Node asdf = YAML::Load(yaml);
-    std::cout << asdf["top"] << std::endl;
-
-
-    return 0;
+    asdf_tree = YAML::Load(yaml_data);
+    std::cout << asdf_tree["top"] << std::endl;
 }
+
+std::string AsdfFile::get_filename()
+{
+    return filename;
+}
+
+} // namespace Asdf

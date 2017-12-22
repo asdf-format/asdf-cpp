@@ -10,6 +10,6 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    load_asdf_file(argv[1]);
+    Asdf::AsdfFile asdf(argv[1]);
 
 }
