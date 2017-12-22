@@ -2,8 +2,14 @@
 #include <asdf.hpp>
 
 
-int main()
+int main(int argc, char **argv)
 {
-    printf("HI!\n");
+    if (argc != 2)
+    {
+        fprintf(stderr, "USAGE: %s <file name>\n", argv[0]);
+        return 1;
+    }
+
+    load_asdf_file(argv[1]);
 
 }
