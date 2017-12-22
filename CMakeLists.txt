@@ -2,7 +2,7 @@ cmake_minimum_required( VERSION 3.5.2 )
 project( asdf-cpp )
 
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=gnu++11 -Wall -Werror" )
-set( BUILD_SHARED_LIBS ON )
+set( BUILD_SHARED_LIBS OFF )
 
 # The compiler command database can be used by editors for code completion
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
