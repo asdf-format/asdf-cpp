@@ -82,6 +82,11 @@ std::string AsdfFile::get_filename()
     return filename;
 }
 
+YAML::Node AsdfFile::get_tree()
+{
+    return asdf_tree;
+}
+
 YAML::Node AsdfFile::operator[] (std::string key)
 {
     return asdf_tree[key];

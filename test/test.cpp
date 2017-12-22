@@ -12,11 +12,14 @@ int main(int argc, char **argv)
     }
 
     Asdf::AsdfFile asdf(argv[1]);
-    YAML::Node tree = asdf["top"];
+    YAML::Node tree = asdf.get_tree();
+    std::cout << tree.Tag() << std::endl;
+
+    YAML::Node top = asdf["top"];
 
     std::cout << "ASDF tree:" << std::endl;
-    std::cout << tree << std::endl;
+    std::cout << top << std::endl;
 
     std::cout << "ASDF Subtree:" << std::endl;
-    std::cout << tree["nums"] << std::endl;
+    std::cout << top["nums"] << std::endl;
 }

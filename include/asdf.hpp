@@ -20,6 +20,7 @@ class AsdfFile
 
         /* Getters/Setters */
         std::string get_filename(void);
+        YAML::Node get_tree(void);
         YAML::Node operator[] (std::string key);
 
     private:
