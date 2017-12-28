@@ -10,6 +10,8 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <tags/ndarray.hpp>
+
 
 namespace Asdf {
 class AsdfFile

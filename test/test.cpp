@@ -22,4 +22,7 @@ int main(int argc, char **argv)
 
     std::cout << "ASDF Subtree:" << std::endl;
     std::cout << top["nums"] << std::endl;
+
+    Asdf::NDArray data = top["nums"].as<Asdf::NDArray>();
+    std::cout << data << std::endl;
 }
