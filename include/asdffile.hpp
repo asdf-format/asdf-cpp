@@ -4,6 +4,9 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
+
+#include <cstdint>
 
 #include <yaml-cpp/yaml.h>
 
@@ -33,11 +36,15 @@ class AsdfFile
 
         int fd = -1;
         long file_size = 0;
-        void *memmap = nullptr;
+        uint8_t *memmap = nullptr;
 
         std::streampos end_index = 0;
 
-        void setup_memmap();
+        std::vector<uint8_t *> blocks;
+
+        /* Private methods */
+        void setup_memmap(void);
+        void find_blocks(void);
 
 }; /* AsdfFile class */
 } /* namespace Asdf */

@@ -4,6 +4,7 @@
 #include <sstream>
 
 #include <cstdio>
+#include <cstdint>
 #include <cstring>
 #include <error.h>
 
@@ -16,6 +17,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include <asdf.hpp>
+#include <private/block.hpp>
 
 #define ASDF_HEADER             "#ASDF"
 #define ASDF_STANDARD_HEADER    "#ASDF_STANDARD"
@@ -84,6 +86,7 @@ AsdfFile::AsdfFile(std::string filename)
     ifs.seekg(0);
 
     setup_memmap();
+    find_blocks();
 
     asdf_tree = YAML::Load(yaml_data);
 }
@@ -104,13 +107,24 @@ void AsdfFile::setup_memmap()
     fstat(fd, &sb);
     file_size = sb.st_size;
 
-    memmap = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
+    memmap = (uint8_t *) mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
     if (memmap == MAP_FAILED)
     {
         close(fd);
         std::string msg("Error memory mapping file: ");
         throw std::runtime_error(msg + strerror(errno));
     }
+}
+
+void AsdfFile::find_blocks()
+{
+    block_header_t *bh = (block_header_t *)(memmap + end_index);
+    if (memcmp(bh->magic, asdf_block_magic, sizeof(bh->magic)))
+    {
+        throw std::runtime_error("Invalid block header");
+    }
+
+    blocks.push_back(memmap + end_index + sizeof(block_header_t));
 }
 
 std::string AsdfFile::get_filename()
@@ -130,7 +144,7 @@ YAML::Node AsdfFile::operator[] (std::string key)
 
 void * AsdfFile::get_block(int source)
 {
-    return (void *)((char *)memmap + end_index);
+    return blocks[source];
 }
 
 } /* namespace Asdf */
