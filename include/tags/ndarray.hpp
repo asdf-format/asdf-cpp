@@ -10,9 +10,11 @@ class NDArray
     public:
         NDArray(void);
         NDArray(int source, std::vector<int> shape);
+
         int get_source(void) const;
         std::vector<int> get_shape(void) const;
 
+        template<typename T> T * read(AsdfFile &file);
 
     private:
         int source;
@@ -22,6 +24,12 @@ class NDArray
             operator<<(std::ostream &strm, const NDArray &array);
 
 };
+
+template<typename T> T * NDArray::read(AsdfFile &file)
+{
+    return (T *) file.get_block(source);
+}
+
 } /* namespace Asdf */
 
 namespace YAML {

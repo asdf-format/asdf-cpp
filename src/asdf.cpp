@@ -7,6 +7,13 @@
 #include <cstring>
 #include <error.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+
+#include <sys/mman.h>
+
 #include <yaml-cpp/yaml.h>
 #include <asdf.hpp>
 
@@ -34,7 +41,8 @@ static bool parse_header(std::ifstream &ifs)
     return true;
 }
 
-static std::streampos find_yaml_end(std::stringstream &yaml, std::ifstream &ifs)
+static std::streampos
+find_yaml_end(std::stringstream &yaml, std::ifstream &ifs)
 {
     std::string line;
 
@@ -68,13 +76,41 @@ AsdfFile::AsdfFile(std::string filename)
         throw std::runtime_error("Invalid ASDF header");
     }
 
-    std::streampos end_index = find_yaml_end(yaml_data, ifs);
+    end_index = find_yaml_end(yaml_data, ifs);
     std::cout << "end index=" << end_index << std::endl;
 
     /* Reset stream to the beginning of the file */
+    /* TODO: this should probably be a close */
     ifs.seekg(0);
 
+    setup_memmap();
+
     asdf_tree = YAML::Load(yaml_data);
+}
+
+AsdfFile::~AsdfFile()
+{
+    /* TODO: the mmap may not have been created in all cases */
+    munmap(memmap, file_size);
+    close(fd);
+}
+
+void AsdfFile::setup_memmap()
+{
+    struct stat sb;
+
+    fd = open(filename.c_str(), O_RDONLY);
+
+    fstat(fd, &sb);
+    file_size = sb.st_size;
+
+    memmap = mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
+    if (memmap == MAP_FAILED)
+    {
+        close(fd);
+        std::string msg("Error memory mapping file: ");
+        throw std::runtime_error(msg + strerror(errno));
+    }
 }
 
 std::string AsdfFile::get_filename()
@@ -92,4 +128,9 @@ YAML::Node AsdfFile::operator[] (std::string key)
     return asdf_tree[key];
 }
 
-} // namespace Asdf
+void * AsdfFile::get_block(int source)
+{
+    return (void *)((char *)memmap + end_index);
+}
+
+} /* namespace Asdf */
