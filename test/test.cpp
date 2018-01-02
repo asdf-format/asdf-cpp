@@ -26,9 +26,9 @@ int main(int argc, char **argv)
     Asdf::NDArray data = top["nums"].as<Asdf::NDArray>();
     std::cout << data << std::endl;
 
-    double *ddata = data.read<double>(asdf);
+    long *ddata = data.read<long>(asdf);
     for (int i = 0; i < 10; i++)
     {
-        std::cout << ddata[i] << std::endl;
+        std::cout << std::hex << ddata[i] << std::endl;
     }
 }
