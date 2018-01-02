@@ -24,6 +24,7 @@ int main(int argc, char **argv)
     std::cout << top["nums"] << std::endl;
 
     Asdf::NDArray<long> data = top["nums"].as<Asdf::NDArray<long>>();
+    std::cout << data << std::endl;
 
     long *ddata = data.read(asdf);
     for (int i = 0; i < 10; i++)

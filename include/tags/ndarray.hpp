@@ -39,7 +39,10 @@ class NDArray
         std::vector<int> shape;
 
         friend std::ostream&
-            operator<<(std::ostream &strm, const NDArray &array);
+        operator<<(std::ostream &strm, const NDArray &array)
+        {
+            return strm << "NDArray";
+        }
 
 };
 
