@@ -6,7 +6,11 @@
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
+#ifdef __APPLE__
+#include <mach/error.h>
+#else
 #include <error.h>
+#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
