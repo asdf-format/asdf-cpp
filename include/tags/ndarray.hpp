@@ -5,16 +5,34 @@
 
 
 namespace Asdf {
+
+template <typename T>
 class NDArray
 {
     public:
-        NDArray(void);
-        NDArray(int source, std::vector<int> shape);
+        NDArray() { };
 
-        int get_source(void) const;
-        std::vector<int> get_shape(void) const;
+        NDArray(int source, std::vector<int> shape)
+        {
+            this->source = source;
+            this->shape = shape;
+        }
 
-        template<typename T> T * read(AsdfFile &file);
+        int get_source() const
+        {
+            return source;
+        }
+
+        std::vector<int> get_shape() const
+        {
+            return shape;
+        }
+
+        T * read(AsdfFile &file)
+        {
+            return (T *) file.get_block(source);
+        }
+
 
     private:
         int source;
@@ -25,19 +43,40 @@ class NDArray
 
 };
 
-template<typename T> T * NDArray::read(AsdfFile &file)
-{
-    return (T *) file.get_block(source);
-}
-
 } /* namespace Asdf */
 
 namespace YAML {
 
-template<>
-struct convert<Asdf::NDArray>
+template <typename T>
+struct convert<Asdf::NDArray<T>>
 {
-    static Node encode(const Asdf::NDArray &array);
-    static bool decode(const Node &node, Asdf::NDArray &array);
+    static Node encode(const Asdf::NDArray<T> &array)
+    {
+        Node node;
+
+        node["source"] = array.get_source();
+        for (auto x : array.get_shape())
+        {
+            node["shape"].push_back(x);
+        }
+
+        return node;
+    }
+
+    static bool decode(const Node &node, Asdf::NDArray<T> &array)
+    {
+        if (node.Tag() != "tag:stsci.edu:asdf/core/ndarray-1.0.0")
+        {
+            return false;
+        }
+
+        int source = node["source"].as<int>();
+        std::vector<int> shape = node["shape"].as<std::vector<int>>();
+
+        array = Asdf::NDArray<T>(source, shape);
+
+        return true;
+    }
 };
+
 } /* namespace YAML */

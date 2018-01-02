@@ -23,10 +23,9 @@ int main(int argc, char **argv)
     std::cout << "ASDF Subtree:" << std::endl;
     std::cout << top["nums"] << std::endl;
 
-    Asdf::NDArray data = top["nums"].as<Asdf::NDArray>();
-    std::cout << data << std::endl;
+    Asdf::NDArray<long> data = top["nums"].as<Asdf::NDArray<long>>();
 
-    long *ddata = data.read<long>(asdf);
+    long *ddata = data.read(asdf);
     for (int i = 0; i < 10; i++)
     {
         std::cout << std::hex << ddata[i] << std::endl;

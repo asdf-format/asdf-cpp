@@ -13,7 +13,7 @@ include_directories( ${INCLUDE_DIR} )
 
 set( HEADER_FILES ${INCLUDE_DIR}/asdf.hpp )
 set( SOURCE_FILES src/asdf.cpp )
-set( TAG_FILES src/tags/ndarray.cpp )
+set( TAG_FILES "" )
 
 add_library( asdf ${SOURCE_FILES} ${TAG_FILES} ${HEADER_FILES} )
 target_link_libraries( asdf yaml-cpp )
