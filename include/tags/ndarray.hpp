@@ -1,6 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <initializer_list>
+
 #include <yaml-cpp/yaml.h>
 
 
@@ -31,6 +33,16 @@ class NDArray
         T * read(AsdfFile &file)
         {
             return (T *) file.get_block(source);
+        }
+
+        T operator()(std::initializer_list<int> args)
+        {
+            if (args.size() != shape.size())
+            {
+                throw std::runtime_error("Array indices don't match dimensions");
+            }
+
+            return (T) 1;
         }
 
 

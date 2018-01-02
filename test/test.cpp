@@ -31,4 +31,6 @@ int main(int argc, char **argv)
     {
         std::cout << std::hex << ddata[i] << std::endl;
     }
+
+    data({10, 10});
 }
