@@ -8,7 +8,7 @@
 
 #include <cstdint>
 
-#include <yaml-cpp/yaml.h>
+#include <node.hpp>
 
 
 namespace Asdf {
@@ -21,8 +21,8 @@ class AsdfFile
 
         /* Getters/Setters */
         std::string get_filename(void);
-        YAML::Node get_tree(void);
-        YAML::Node operator[] (std::string key);
+        Node get_tree(void);
+        Node operator[] (std::string key);
 
         void * get_block(int source);
 
@@ -32,7 +32,7 @@ class AsdfFile
         std::stringstream yaml_data;
         std::string filename;
 
-        YAML::Node asdf_tree;
+        Node asdf_tree;
 
         int fd = -1;
         long file_size = 0;

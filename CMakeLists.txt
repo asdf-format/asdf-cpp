@@ -12,7 +12,7 @@ set( INCLUDE_DIR include )
 include_directories( ${INCLUDE_DIR} )
 
 set( HEADER_FILES ${INCLUDE_DIR}/asdf.hpp )
-set( SOURCE_FILES src/asdf.cpp src/nodebuilder.cpp )
+set( SOURCE_FILES src/asdf.cpp src/parser.cpp src/nodebuilder.cpp )
 set( TAG_FILES "" )
 
 add_library( asdf ${SOURCE_FILES} ${TAG_FILES} ${HEADER_FILES} )

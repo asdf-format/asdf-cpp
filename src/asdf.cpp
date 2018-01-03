@@ -20,7 +20,10 @@
 #include <sys/mman.h>
 
 #include <yaml-cpp/yaml.h>
+
 #include <asdf.hpp>
+#include <node.hpp>
+#include <private/parser.hpp>
 #include <private/block.hpp>
 
 #define ASDF_HEADER             "#ASDF"
@@ -92,7 +95,7 @@ AsdfFile::AsdfFile(std::string filename)
     setup_memmap();
     find_blocks();
 
-    asdf_tree = YAML::Load(yaml_data);
+    asdf_tree = Load(yaml_data);
 }
 
 AsdfFile::~AsdfFile()
@@ -136,12 +139,12 @@ std::string AsdfFile::get_filename()
     return filename;
 }
 
-YAML::Node AsdfFile::get_tree()
+Node AsdfFile::get_tree()
 {
     return asdf_tree;
 }
 
-YAML::Node AsdfFile::operator[] (std::string key)
+Node AsdfFile::operator[] (std::string key)
 {
     return asdf_tree[key];
 }
