@@ -32,5 +32,6 @@ int main(int argc, char **argv)
         std::cout << std::hex << ddata[i] << std::endl;
     }
 
-    data({10, 10});
+    long result = data(10, 256);
+    std::cout << result << std::endl;
 }

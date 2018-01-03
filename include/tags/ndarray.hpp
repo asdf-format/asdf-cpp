@@ -1,8 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <initializer_list>
-
+#include <sstream>
 #include <yaml-cpp/yaml.h>
 
 
@@ -35,14 +34,21 @@ class NDArray
             return (T *) file.get_block(source);
         }
 
-        T operator()(std::initializer_list<int> args)
+        template<typename... Longs>
+        T operator()(Longs... indices)
         {
-            if (args.size() != shape.size())
+            std::vector<long> values = {indices...};
+            if (values.size() != shape.size())
             {
-                throw std::runtime_error("Array indices don't match dimensions");
+                std::stringstream msg;
+                msg << "Given number of array indices (" << values.size();
+                msg << ") doesn't match dimensions (" << shape.size();
+                msg << ")";
+
+                throw std::runtime_error(msg.str());
             }
 
-            return (T) 1;
+            return 1;
         }
 
 
