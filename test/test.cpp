@@ -13,6 +13,7 @@ int main(int argc, char **argv)
 
     Asdf::AsdfFile asdf(argv[1]);
     Asdf::Node tree = asdf.get_tree();
+    std::cout << "Tag:" << std::endl;
     std::cout << tree.Tag() << std::endl;
 
     Asdf::Node top = asdf["top"];
