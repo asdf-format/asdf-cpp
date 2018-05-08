@@ -18,33 +18,11 @@ class Node : public YAML::Node
         friend class NodeBuilder;
         inline Node() : YAML::Node() {}
 
-        inline void EnsureNodeExists() const;
-
         template <typename Key>
             inline const Node operator[](const Key& key) const;
         template <typename Key>
             inline Node operator[](const Key& key);
-
-    private:
-        bool m_isValid; mutable YAML::detail::shared_memory_holder m_pMemory;
-        mutable YAML::detail::node* m_pNode;
-
-        enum Zombie { ZombieNode };
-        explicit Node(Zombie);
-        inline Node(YAML::detail::node& node, YAML::detail::shared_memory_holder pMemory)
-            : m_isValid(true), m_pMemory(pMemory), m_pNode(&node) {}
 };
-
-/* Method implementations */
-inline void Node::EnsureNodeExists() const {
-  if (!m_isValid)
-    throw YAML::InvalidNode();
-  if (!m_pNode) {
-    m_pMemory.reset(new YAML::detail::memory_holder);
-    m_pNode = &m_pMemory->create_node();
-    m_pNode->set_null();
-  }
-}
 
 template <typename Key>
 inline const Node Node::operator[](const Key& key) const {
