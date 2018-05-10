@@ -23,16 +23,16 @@ class Node : public YAML::Node
         template <typename Key>
             Node operator[](const Key& key);
 
-        AsdfFile *get_asdf_file(void) const;
+        const AsdfFile *get_asdf_file(void) const;
 
     protected:
-        AsdfFile *file;
+        const AsdfFile *file;
 
         inline Node(Zombie zombie) : YAML::Node(zombie) {}
         explicit Node(
                 YAML::detail::node& node,
                 YAML::detail::shared_memory_holder pMemory,
-                AsdfFile *file) :
+                const AsdfFile *file) :
             YAML::Node(node, pMemory) { this->file = file; }
 };
 

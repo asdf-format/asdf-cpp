@@ -2,7 +2,7 @@
 
 namespace Asdf {
 
-AsdfFile *Node::get_asdf_file() const
+const AsdfFile *Node::get_asdf_file() const
 {
     return file;
 }

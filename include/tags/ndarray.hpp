@@ -13,7 +13,7 @@ class NDArray
     public:
         NDArray() { file = nullptr; };
 
-        NDArray(int source, std::vector<int> shape, AsdfFile *file)
+        NDArray(int source, std::vector<int> shape, const AsdfFile *file)
         {
             this->source = source;
             this->shape = shape;
@@ -56,7 +56,7 @@ class NDArray
     private:
         int source;
         std::vector<int> shape;
-        AsdfFile *file;
+        const AsdfFile *file;
 
         friend std::ostream&
         operator<<(std::ostream &strm, const NDArray &array)

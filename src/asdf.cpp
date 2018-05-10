@@ -149,7 +149,7 @@ Node AsdfFile::operator[] (std::string key)
     return asdf_tree[key];
 }
 
-void * AsdfFile::get_block(int source)
+void * AsdfFile::get_block(int source) const
 {
     return blocks[source];
 }

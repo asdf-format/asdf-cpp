@@ -9,7 +9,7 @@ class Node;
 
 class NodeBuilder : public YAML::NodeBuilder {
     public:
-        Node Root(AsdfFile *file) {
+        Node Root(const AsdfFile *file) {
           if (!m_pRoot)
             return Node();
 

@@ -24,7 +24,7 @@ class AsdfFile
         Node get_tree(void);
         Node operator[] (std::string key);
 
-        void * get_block(int source);
+        void * get_block(int source) const;
 
     private:
         /* Private members */
