@@ -22,6 +22,13 @@ class Node : public YAML::Node
             inline const Node operator[](const Key& key) const;
         template <typename Key>
             inline Node operator[](const Key& key);
+
+    protected:
+        inline Node(Zombie zombie) : YAML::Node(zombie) {}
+        explicit Node(
+                YAML::detail::node& node,
+                YAML::detail::shared_memory_holder pMemory) :
+            YAML::Node(node, pMemory) {}
 };
 
 template <typename Key>
