@@ -19,16 +19,21 @@ class Node : public YAML::Node
         inline Node() : YAML::Node() {}
 
         template <typename Key>
-            inline const Node operator[](const Key& key) const;
+            const Node operator[](const Key& key) const;
         template <typename Key>
-            inline Node operator[](const Key& key);
+            Node operator[](const Key& key);
+
+        AsdfFile *get_asdf_file(void) const;
 
     protected:
+        AsdfFile *file;
+
         inline Node(Zombie zombie) : YAML::Node(zombie) {}
         explicit Node(
                 YAML::detail::node& node,
-                YAML::detail::shared_memory_holder pMemory) :
-            YAML::Node(node, pMemory) {}
+                YAML::detail::shared_memory_holder pMemory,
+                AsdfFile *file) :
+            YAML::Node(node, pMemory) { this->file = file; }
 };
 
 template <typename Key>
@@ -41,7 +46,7 @@ inline const Node Node::operator[](const Key& key) const {
   if (!value) {
     return Node(ZombieNode);
   }
-  return Node(*value, m_pMemory);
+  return Node(*value, m_pMemory, this->file);
 }
 
 template <typename Key>
@@ -50,7 +55,7 @@ inline Node Node::operator[](const Key& key) {
     throw YAML::InvalidNode();
   EnsureNodeExists();
   YAML::detail::node& value = m_pNode->get(YAML::detail::to_value(key), m_pMemory);
-  return Node(value, m_pMemory);
+  return Node(value, m_pMemory, this->file);
 }
 
 } /* namespace Asdf */

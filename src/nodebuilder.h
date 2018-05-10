@@ -9,11 +9,11 @@ class Node;
 
 class NodeBuilder : public YAML::NodeBuilder {
     public:
-        Node Root() {
+        Node Root(AsdfFile *file) {
           if (!m_pRoot)
             return Node();
 
-          return Node(*m_pRoot, m_pMemory);
+          return Node(*m_pRoot, m_pMemory, file);
         };
 };
 }

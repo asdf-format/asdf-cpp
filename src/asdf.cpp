@@ -95,7 +95,7 @@ AsdfFile::AsdfFile(std::string filename)
     setup_memmap();
     find_blocks();
 
-    asdf_tree = Load(yaml_data);
+    asdf_tree = Load(yaml_data, this);
 }
 
 AsdfFile::~AsdfFile()

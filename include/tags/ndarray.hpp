@@ -11,12 +11,13 @@ template <typename T>
 class NDArray
 {
     public:
-        NDArray() { };
+        NDArray() { file = nullptr; };
 
-        NDArray(int source, std::vector<int> shape)
+        NDArray(int source, std::vector<int> shape, AsdfFile *file)
         {
             this->source = source;
             this->shape = shape;
+            this->file = file;
         }
 
         int get_source() const
@@ -29,9 +30,9 @@ class NDArray
             return shape;
         }
 
-        T * read(AsdfFile &file)
+        T * read(void)
         {
-            return (T *) file.get_block(source);
+            return (T *) file->get_block(source);
         }
 
         template<typename... Longs>
@@ -55,6 +56,7 @@ class NDArray
     private:
         int source;
         std::vector<int> shape;
+        AsdfFile *file;
 
         friend std::ostream&
         operator<<(std::ostream &strm, const NDArray &array)
@@ -94,7 +96,8 @@ struct convert<Asdf::NDArray<T>>
         int source = node["source"].as<int>();
         std::vector<int> shape = node["shape"].as<std::vector<int>>();
 
-        array = Asdf::NDArray<T>(source, shape);
+        const Asdf::Node& asdf_node = static_cast<const Asdf::Node &>(node);
+        array = Asdf::NDArray<T>(source, shape, asdf_node.get_asdf_file());
 
         return true;
     }
