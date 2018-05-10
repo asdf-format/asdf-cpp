@@ -15,8 +15,41 @@ set( HEADER_FILES ${INCLUDE_DIR}/asdf.hpp )
 set( SOURCE_FILES src/asdf.cpp src/parser.cpp src/node.cpp )
 set( TAG_FILES "" )
 
-add_library( asdf ${SOURCE_FILES} ${TAG_FILES} ${HEADER_FILES} )
-target_link_libraries( asdf yaml-cpp )
+set(asdf_c_flags ${CMAKE_C_FLAGS})
+set(asdf_cxx_flags ${CMAKE_CXX_FLAGS})
 
-add_executable( asdf-test test/test.cpp )
-target_link_libraries( asdf-test asdf )
+# From http://www.cmake.org/pipermail/cmake/2010-March/035992.html:
+# function to collect all the sources from sub-directories
+# into a single list
+function(add_sources)
+  get_property(is_defined GLOBAL PROPERTY SRCS_LIST DEFINED)
+  if(NOT is_defined)
+    define_property(GLOBAL PROPERTY SRCS_LIST
+      BRIEF_DOCS "List of source files"
+      FULL_DOCS "List of all source files in the entire project")
+  endif()
+  # make absolute paths
+  set(SRCS)
+  foreach(s IN LISTS ARGN)
+    if(NOT IS_ABSOLUTE "${s}")
+      get_filename_component(s "${s}" ABSOLUTE)
+    endif()
+    list(APPEND SRCS "${s}")
+  endforeach()
+  # append to global list
+  set_property(GLOBAL APPEND PROPERTY SRCS_LIST "${SRCS}")
+endfunction(add_sources)
+
+add_library( asdf-cpp ${SOURCE_FILES} ${TAG_FILES} ${HEADER_FILES} )
+target_link_libraries( asdf-cpp yaml-cpp )
+
+set_target_properties(asdf-cpp PROPERTIES
+  COMPILE_FLAGS "${asdf_c_flags} ${asdf_c_flags}"
+)
+
+enable_testing()
+option(ASDF_CPP_BUILD_TESTS "Enable testing" ON)
+
+if(ASDF_CPP_BUILD_TESTS)
+    add_subdirectory(tests)
+endif()
