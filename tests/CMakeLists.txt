@@ -25,10 +25,6 @@ endif()
 file(GLOB test_headers [a-z_]*.h)
 file(GLOB test_sources [a-z_]*.cpp)
 
-# This file should not be compiled as part of the gtest suite
-set (DEVELOPER_TEST_SCRIPT_SRC ${CMAKE_CURRENT_SOURCE_DIR}/run-asdf.cpp)
-list(REMOVE_ITEM test_sources ${DEVELOPER_TEST_SCRIPT_SRC})
-
 add_sources(${test_sources} ${test_headers})
 
 include_directories(${ASDF_CPP_SOURCE_DIR}/src)
@@ -48,19 +44,12 @@ add_test(asdf-test
     ${CMAKE_CURRENT_BINARY_DIR}/data)
 
 #
-# This is a standalone test executable that is just a convenience for developers
-#
-add_executable(asdf-test ${DEVELOPER_TEST_SCRIPT_SRC})
-set_target_properties(asdf-test PROPERTIES
-  COMPILE_FLAGS "${yaml_c_flags} ${yaml_cxx_flags} ${asdf_test_flags}"
-)
-target_link_libraries(asdf-test asdf-cpp)
-
-#
 # Add the data directory to the build output
 #
 add_custom_command(
-    TARGET asdf-test POST_BUILD
+    TARGET run-tests POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/data
             ${CMAKE_CURRENT_BINARY_DIR}/data)
+
+add_subdirectory(scripts)
