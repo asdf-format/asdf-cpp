@@ -13,7 +13,7 @@ before_install:
   - pushd yaml-cpp/build
   - cmake ..
   - make
-  - make install
+  - sudo make install
   - popd
 
 before_script:
