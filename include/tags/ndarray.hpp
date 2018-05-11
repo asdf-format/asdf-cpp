@@ -4,6 +4,10 @@
 #include <sstream>
 #include <yaml-cpp/yaml.h>
 
+#define NDARRAY_TAG_BASE    "tag:stsci.edu:asdf/core/ndarray"
+#define NDARRAY_TAG_VERSION "1.0.0"
+#define NDARRAY_TAG         (NDARRAY_TAG_BASE "-" NDARRAY_TAG_VERSION)
+
 
 namespace Asdf {
 
@@ -76,6 +80,7 @@ struct convert<Asdf::NDArray<T>>
     static Node encode(const Asdf::NDArray<T> &array)
     {
         Node node;
+        node.SetTag(NDARRAY_TAG);
 
         node["source"] = array.get_source();
         for (auto x : array.get_shape())
@@ -88,7 +93,7 @@ struct convert<Asdf::NDArray<T>>
 
     static bool decode(const Node &node, Asdf::NDArray<T> &array)
     {
-        if (node.Tag() != "tag:stsci.edu:asdf/core/ndarray-1.0.0")
+        if (node.Tag() != NDARRAY_TAG)
         {
             return false;
         }

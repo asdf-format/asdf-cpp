@@ -14,6 +14,8 @@ int main(int argc, char **argv)
     tree["bar"] = Asdf::Node();
     tree["bar"]["baz"] = "blurg";
 
+    tree["array"] = Asdf::NDArray<int>();
+
     Asdf::AsdfFile asdf(tree);
 
     std::ofstream outfile(argv[1]);
