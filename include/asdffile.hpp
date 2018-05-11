@@ -17,12 +17,16 @@ class AsdfFile
     public:
         /* Constructors */
         AsdfFile(std::string filename);
+        AsdfFile(Node& tree);
         ~AsdfFile(void);
 
         /* Getters/Setters */
         std::string get_filename(void);
         Node get_tree(void);
         Node operator[] (std::string key);
+
+        friend std::ostream&
+            operator<<(std::ostream& stream, const AsdfFile &af);
 
         void * get_block(int source) const;
 

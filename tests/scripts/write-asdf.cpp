@@ -11,7 +11,11 @@ int main(int argc, char **argv)
     Asdf::Node tree;
     tree["foo"] = "hello, world!";
     tree["vec"] = std::vector<int>({1,2,3,4,5});
+    tree["bar"] = Asdf::Node();
+    tree["bar"]["baz"] = "blurg";
+
+    Asdf::AsdfFile asdf(tree);
 
     std::ofstream outfile(argv[1]);
-    outfile << tree;
+    outfile << asdf;
 }

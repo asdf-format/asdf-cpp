@@ -28,6 +28,7 @@
 
 #define ASDF_HEADER             "#ASDF"
 #define ASDF_STANDARD_HEADER    "#ASDF_STANDARD"
+#define YAML_START_MARKER       "---"
 #define YAML_END_MARKER         "..."
 
 
@@ -98,6 +99,11 @@ AsdfFile::AsdfFile(std::string filename)
     asdf_tree = Load(yaml_data, this);
 }
 
+AsdfFile::AsdfFile(Node &node)
+{
+    asdf_tree = node;
+}
+
 AsdfFile::~AsdfFile()
 {
     /* TODO: the mmap may not have been created in all cases */
@@ -152,6 +158,24 @@ Node AsdfFile::operator[] (std::string key)
 void * AsdfFile::get_block(int source) const
 {
     return blocks[source];
+}
+
+std::ostream& operator<<(std::ostream& stream, const AsdfFile &af)
+{
+    stream << ASDF_HEADER << " " << ASDF_FILE_FORMAT_VERSION << std::endl;
+    stream << ASDF_STANDARD_HEADER << " " << ASDF_STANDARD_VERSION << std::endl;
+    stream << "%YAML 1.1" << std::endl;
+    stream << "%TAG ! tag:stsci.edu:asdf/" << std::endl;
+    /* TODO: there may be a more general way to handle the top-level object */
+    stream << YAML_START_MARKER << " " << "!core/asdf-1.1.0" << std::endl;
+
+    stream << af.asdf_tree;
+
+    stream << std::endl << YAML_END_MARKER << std::endl;
+
+    /* TODO: write block index and blocks if necessary */
+
+    return stream;
 }
 
 } /* namespace Asdf */
