@@ -8,7 +8,7 @@ compiler:
 
 before_install:
   # Install from a fork until 
-  - git clone -b easier-to-inherit git@github.com:drdavella/yaml-cpp
+  - git clone -b easier-to-inherit https://github.com/drdavella/yaml-cpp
   - mkdir -p build
   - pushd build
   - cmake ..
