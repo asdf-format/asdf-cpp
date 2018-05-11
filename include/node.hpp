@@ -23,6 +23,9 @@ class Node : public YAML::Node
         template <typename Key>
             Node operator[](const Key& key);
 
+        /* Inherit support for assignment to Node from YAML::Node */
+        using YAML::Node::operator=;
+
         const AsdfFile *get_asdf_file(void) const;
 
     protected:
