@@ -9,12 +9,12 @@ compiler:
 before_install:
   # Install from a fork until 
   - git clone -b easier-to-inherit https://github.com/drdavella/yaml-cpp
-  - mkdir -p build
-  - pushd build
+  - mkdir -p yaml-cpp/build
+  - pushd yaml-cpp/build
   - cmake ..
   - make
   - make install
-  - pushd
+  - popd
 
 before_script:
   - mkdir -p build
