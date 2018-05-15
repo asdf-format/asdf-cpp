@@ -1,3 +1,4 @@
+#include <iostream>
 #include <asdf.hpp>
 
 int main(int argc, char **argv)
@@ -18,6 +19,7 @@ int main(int argc, char **argv)
 
     int *nums = (int *) calloc(1, sizeof(*nums) * 100);
     tree["array"] = Asdf::NDArray<int>(nums);
+    std::cout << "array" << std::endl;
 
 
     std::ofstream outfile(argv[1]);

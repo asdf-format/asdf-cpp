@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <yaml-cpp/yaml.h>
 
-#include <asdffile.hpp>
+#include "abstract_ndarray.hpp"
 
 #define NDARRAY_TAG_BASE    "tag:stsci.edu:asdf/core/ndarray"
 #define NDARRAY_TAG_VERSION "1.0.0"
@@ -15,7 +15,7 @@
 namespace Asdf {
 
 template <typename T>
-class NDArray
+class NDArray : public AbstractNDArray
 {
     public:
         NDArray(T *data)
@@ -29,16 +29,6 @@ class NDArray
             {
                 datatype = "int32";
             }
-        }
-
-        int get_source() const
-        {
-            return source;
-        }
-
-        std::vector<int> get_shape() const
-        {
-            return shape;
         }
 
         T * read(void)
@@ -67,31 +57,16 @@ class NDArray
         friend struct YAML::convert<Asdf::NDArray<T>>;
         friend struct YAML::as_if<Asdf::NDArray<T>, void>;
 
-        NDArray() { file = nullptr; }
+        NDArray() : AbstractNDArray() {}
 
-        NDArray(int source, std::vector<int> shape, const AsdfFile *file)
-        {
-            this->source = source;
-            this->shape = shape;
-            this->file = file;
-        }
+        NDArray(int source, std::vector<int> shape, const AsdfFile *file) :
+            AbstractNDArray(source, shape, file) {}
 
         void write(AsdfFile &file);
 
     private:
-        int source;
-        std::string datatype;
-        std::string byteorder;
-        std::vector<int> shape;
-        const AsdfFile *file;
-
         T * data = nullptr;
 
-        friend std::ostream&
-        operator<<(std::ostream &strm, const NDArray &array)
-        {
-            return strm << "NDArray";
-        }
 };
 
 } /* namespace Asdf */
@@ -105,6 +80,8 @@ struct convert<Asdf::NDArray<T>>
     {
         Asdf::Node node(array);
         node.SetTag(NDARRAY_TAG);
+
+        std::cout << "encode" << std::endl;
 
         node["source"] = array.get_source();
         node["datatype"] = array.datatype;

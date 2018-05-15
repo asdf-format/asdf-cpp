@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include <yaml-cpp/yaml.h>
 #include "yaml-cpp/node/node.h"
 #include "yaml-cpp/node/iterator.h"
@@ -7,11 +9,12 @@
 #include "yaml-cpp/node/detail/node.h"
 #include "yaml-cpp/exceptions.h"
 
+#include <tags/abstract_ndarray.hpp>
+
 namespace Asdf {
 
 /* Forward declarations from other parts of ASDF */
 class AsdfFile;
-template <typename T> class NDArray;
 
 /* Class definition */
 class Node : public YAML::Node
@@ -39,12 +42,17 @@ class Node : public YAML::Node
         explicit Node(
                 YAML::detail::node& node,
                 YAML::detail::shared_memory_holder pMemory,
-                const AsdfFile *file) :
-            YAML::Node(node, pMemory) { this->file = file; }
+                const AsdfFile *file) : YAML::Node(node, pMemory)
+        {
+            node.set_style(YAML::EmitterStyle::Flow);
+            this->file = file;
+        }
 
         /* This constructor is used when creating an NDArray node */
-        template <typename T> Node(const NDArray<T> &array) : Node()
+        Node(const AbstractNDArray &array) : Node()
         {
+            std::cout << "ndarray" << std::endl;
+            array.do_whatever();
         }
 };
 
