@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <sstream>
+#include <type_traits>
 #include <yaml-cpp/yaml.h>
 
 #define NDARRAY_TAG_BASE    "tag:stsci.edu:asdf/core/ndarray"
@@ -15,13 +16,17 @@ template <typename T>
 class NDArray
 {
     public:
-        NDArray() { file = nullptr; };
-
-        NDArray(int source, std::vector<int> shape, const AsdfFile *file)
+        NDArray(T *data)
         {
-            this->source = source;
-            this->shape = shape;
-            this->file = file;
+            this->data = data;
+            byteorder = "little";
+            shape = { 1 };
+
+            using std::is_same;
+            if (is_same<T, int>::value)
+            {
+                datatype = "int32";
+            }
         }
 
         int get_source() const
@@ -56,18 +61,33 @@ class NDArray
             return 1;
         }
 
+    protected:
+        friend struct YAML::convert<Asdf::NDArray<T>>;
+        friend struct YAML::as_if<Asdf::NDArray<T>, void>;
+
+        NDArray() { file = nullptr; }
+
+        NDArray(int source, std::vector<int> shape, const AsdfFile *file)
+        {
+            this->source = source;
+            this->shape = shape;
+            this->file = file;
+        }
 
     private:
         int source;
+        std::string datatype;
+        std::string byteorder;
         std::vector<int> shape;
         const AsdfFile *file;
+
+        T * data = nullptr;
 
         friend std::ostream&
         operator<<(std::ostream &strm, const NDArray &array)
         {
             return strm << "NDArray";
         }
-
 };
 
 } /* namespace Asdf */
@@ -83,6 +103,9 @@ struct convert<Asdf::NDArray<T>>
         node.SetTag(NDARRAY_TAG);
 
         node["source"] = array.get_source();
+        node["datatype"] = array.datatype;
+        node["byteorder"] = array.byteorder;
+
         for (auto x : array.get_shape())
         {
             node["shape"].push_back(x);

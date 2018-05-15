@@ -14,7 +14,8 @@ int main(int argc, char **argv)
     tree["bar"] = Asdf::Node();
     tree["bar"]["baz"] = "blurg";
 
-    tree["array"] = Asdf::NDArray<int>();
+    int *nums = (int *) calloc(1, sizeof(*nums) * 100);
+    tree["array"] = Asdf::NDArray<int>(nums);
 
     Asdf::AsdfFile asdf(tree);
 
