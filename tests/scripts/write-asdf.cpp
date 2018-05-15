@@ -8,7 +8,9 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    Asdf::Node tree;
+    Asdf::AsdfFile asdf;
+    Asdf::Node tree = asdf.get_tree();
+
     tree["foo"] = "hello, world!";
     tree["vec"] = std::vector<int>({1,2,3,4,5});
     tree["bar"] = Asdf::Node();
@@ -17,7 +19,6 @@ int main(int argc, char **argv)
     int *nums = (int *) calloc(1, sizeof(*nums) * 100);
     tree["array"] = Asdf::NDArray<int>(nums);
 
-    Asdf::AsdfFile asdf(tree);
 
     std::ofstream outfile(argv[1]);
     outfile << asdf;

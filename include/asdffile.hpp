@@ -10,14 +10,15 @@
 
 #include <node.hpp>
 
-
 namespace Asdf {
+
 class AsdfFile
 {
     public:
         /* Constructors */
+        AsdfFile();
+        /* TODO: consider providing a factory method here instead */
         AsdfFile(std::string filename);
-        AsdfFile(Node& tree);
         ~AsdfFile(void);
 
         /* Getters/Setters */

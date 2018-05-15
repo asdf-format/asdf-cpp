@@ -70,6 +70,11 @@ find_yaml_end(std::stringstream &yaml, std::ifstream &ifs)
 
 namespace Asdf {
 
+AsdfFile::AsdfFile()
+{
+    asdf_tree = Node();
+}
+
 AsdfFile::AsdfFile(std::string filename)
 {
     this->filename = filename;
@@ -97,11 +102,6 @@ AsdfFile::AsdfFile(std::string filename)
     find_blocks();
 
     asdf_tree = Load(yaml_data, this);
-}
-
-AsdfFile::AsdfFile(Node &node)
-{
-    asdf_tree = node;
 }
 
 AsdfFile::~AsdfFile()

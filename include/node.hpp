@@ -7,7 +7,6 @@
 #include "yaml-cpp/node/detail/node.h"
 #include "yaml-cpp/exceptions.h"
 
-
 namespace Asdf {
 
 /* Forward declarations from other parts of ASDF */
@@ -35,7 +34,6 @@ class Node : public YAML::Node
         template <typename T> friend struct YAML::convert;
 
         const AsdfFile *file;
-        bool is_ndarray_node = false;
 
         inline Node(Zombie zombie) : YAML::Node(zombie) {}
         explicit Node(
@@ -47,7 +45,6 @@ class Node : public YAML::Node
         /* This constructor is used when creating an NDArray node */
         template <typename T> Node(const NDArray<T> &array) : Node()
         {
-            is_ndarray_node = true;
         }
 };
 
