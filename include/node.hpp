@@ -9,13 +9,15 @@
 
 
 namespace Asdf {
+
+/* Forward declarations from other parts of ASDF */
 class AsdfFile;
+template <typename T> class NDArray;
 
 /* Class definition */
 class Node : public YAML::Node
 {
     public:
-        friend class NodeBuilder;
         inline Node() : YAML::Node() {}
 
         template <typename Key>
@@ -29,7 +31,11 @@ class Node : public YAML::Node
         const AsdfFile *get_asdf_file(void) const;
 
     protected:
+        friend class NodeBuilder;
+        template <typename T> friend struct YAML::convert;
+
         const AsdfFile *file;
+        bool is_ndarray_node = false;
 
         inline Node(Zombie zombie) : YAML::Node(zombie) {}
         explicit Node(
@@ -37,6 +43,12 @@ class Node : public YAML::Node
                 YAML::detail::shared_memory_holder pMemory,
                 const AsdfFile *file) :
             YAML::Node(node, pMemory) { this->file = file; }
+
+        /* This constructor is used when creating an NDArray node */
+        template <typename T> Node(const NDArray<T> &array) : Node()
+        {
+            is_ndarray_node = true;
+        }
 };
 
 template <typename Key>

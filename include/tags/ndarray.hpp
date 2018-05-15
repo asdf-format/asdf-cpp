@@ -74,6 +74,8 @@ class NDArray
             this->file = file;
         }
 
+        void write(AsdfFile &file);
+
     private:
         int source;
         std::string datatype;
@@ -99,7 +101,7 @@ struct convert<Asdf::NDArray<T>>
 {
     static Node encode(const Asdf::NDArray<T> &array)
     {
-        Node node;
+        Asdf::Node node(array);
         node.SetTag(NDARRAY_TAG);
 
         node["source"] = array.get_source();
