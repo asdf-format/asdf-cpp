@@ -36,13 +36,13 @@ class Node : public YAML::Node
         friend class NodeBuilder;
         template <typename T> friend struct YAML::convert;
 
-        const AsdfFile *file;
+        AsdfFile *file;
 
         inline Node(Zombie zombie) : YAML::Node(zombie) {}
         explicit Node(
                 YAML::detail::node& node,
                 YAML::detail::shared_memory_holder pMemory,
-                const AsdfFile *file) : YAML::Node(node, pMemory)
+                AsdfFile *file) : YAML::Node(node, pMemory)
         {
             node.set_style(YAML::EmitterStyle::Flow);
             this->file = file;
@@ -51,8 +51,7 @@ class Node : public YAML::Node
         /* This constructor is used when creating an NDArray node */
         Node(const AbstractNDArray &array) : Node()
         {
-            std::cout << "ndarray" << std::endl;
-            array.do_whatever();
+            array.register_array_block(file);
         }
 };
 

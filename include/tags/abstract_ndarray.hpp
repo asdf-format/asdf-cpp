@@ -7,10 +7,7 @@ class AsdfFile;
 class AbstractNDArray
 {
     public:
-        void do_whatever(void) const
-        {
-            std::cout << "doing whatever" << std::endl;
-        }
+        virtual void register_array_block(AsdfFile *file) const = 0;
 
         int get_source() const
         {
@@ -37,6 +34,7 @@ class AbstractNDArray
             this->shape = shape;
             this->file = file;
         }
+
         friend std::ostream&
         operator<<(std::ostream &strm, const AbstractNDArray &array)
         {

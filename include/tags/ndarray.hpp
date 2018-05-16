@@ -62,6 +62,12 @@ class NDArray : public AbstractNDArray
         NDArray(int source, std::vector<int> shape, const AsdfFile *file) :
             AbstractNDArray(source, shape, file) {}
 
+        void register_array_block(AsdfFile *file) const
+        {
+            std::cout << "please work" << std::endl;
+            file->register_array_block();
+        }
+
         void write(AsdfFile &file);
 
     private:

@@ -31,6 +31,10 @@ class AsdfFile
 
         void * get_block(int source) const;
 
+    protected:
+        template <typename T> friend class NDArray;
+        void register_array_block();
+
     private:
         /* Private members */
         std::ifstream ifs;
