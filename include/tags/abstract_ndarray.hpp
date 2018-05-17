@@ -14,7 +14,7 @@ class AbstractNDArray
             return source;
         }
 
-        std::vector<int> get_shape() const
+        std::vector<size_t> get_shape() const
         {
             return shape;
         }
@@ -23,12 +23,12 @@ class AbstractNDArray
         int source;
         std::string datatype;
         std::string byteorder;
-        std::vector<int> shape;
+        std::vector<size_t> shape;
         const AsdfFile *file;
 
         AbstractNDArray() { file = nullptr; }
 
-        AbstractNDArray(int source, std::vector<int> shape, const AsdfFile *file)
+        AbstractNDArray(int source, std::vector<size_t> shape, const AsdfFile *file)
         {
             this->source = source;
             this->shape = shape;

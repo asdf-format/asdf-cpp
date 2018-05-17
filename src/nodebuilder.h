@@ -13,6 +13,7 @@ class NodeBuilder : public YAML::NodeBuilder {
           if (!m_pRoot)
             return Node();
 
+          std::cout << "nodebuilder: " << file << std::endl;
           return Node(*m_pRoot, m_pMemory, file);
         };
 };

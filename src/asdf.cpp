@@ -72,7 +72,8 @@ namespace Asdf {
 
 AsdfFile::AsdfFile()
 {
-    asdf_tree = Node();
+    std::cout << "New AsdfFile: " << this << std::endl;
+    asdf_tree = Node(this);
 }
 
 AsdfFile::AsdfFile(std::string filename)
@@ -160,6 +161,13 @@ void * AsdfFile::get_block(int source) const
     return blocks[source];
 }
 
+void AsdfFile::write_blocks(std::ostream &ostream) const
+{
+    block_manager.write_blocks(ostream);
+
+    /* TODO: write block index here as well */
+}
+
 std::ostream& operator<<(std::ostream& stream, const AsdfFile &af)
 {
     stream << ASDF_HEADER << " " << ASDF_FILE_FORMAT_VERSION << std::endl;
@@ -173,7 +181,7 @@ std::ostream& operator<<(std::ostream& stream, const AsdfFile &af)
 
     stream << std::endl << YAML_END_MARKER << std::endl;
 
-    /* TODO: write block index and blocks if necessary */
+    af.write_blocks(stream);
 
     return stream;
 }

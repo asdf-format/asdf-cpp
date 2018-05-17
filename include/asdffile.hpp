@@ -9,6 +9,7 @@
 #include <cstdint>
 
 #include <node.hpp>
+#include <private/block_manager.hpp>
 
 namespace Asdf {
 
@@ -32,11 +33,17 @@ class AsdfFile
         void * get_block(int source) const;
 
     protected:
+        BlockManager block_manager;
+
         template <typename T> friend class NDArray;
-        template <typename T> void register_array_block(void)
+        template <typename T> void register_array_block(T *data, size_t size)
         {
-            std::cout << "got here!" << std::endl;
+            std::cout << "got here: " << this << std::endl;
+            std::cout << block_manager.get_length() << std::endl;
+            block_manager.add_data_block<T>(data, size);
         }
+
+        void write_blocks(std::ostream &ostream) const;
 
     private:
         /* Private members */

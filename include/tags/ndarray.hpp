@@ -18,11 +18,11 @@ template <typename T>
 class NDArray : public AbstractNDArray
 {
     public:
-        NDArray(T *data)
+        NDArray(T *data, size_t size)
         {
             this->data = data;
             byteorder = "little";
-            shape = { 1 };
+            shape = { size };
 
             using std::is_same;
             if (is_same<T, int>::value)
@@ -59,13 +59,14 @@ class NDArray : public AbstractNDArray
 
         NDArray() : AbstractNDArray() {}
 
-        NDArray(int source, std::vector<int> shape, const AsdfFile *file) :
+        NDArray(int source, std::vector<size_t> shape, const AsdfFile *file) :
             AbstractNDArray(source, shape, file) {}
 
         void register_array_block(AsdfFile *file) const
         {
             std::cout << "please work" << std::endl;
-            file->register_array_block<T>();
+            std::cout << file << std::endl;
+            file->register_array_block<T>(data, shape[0]);
         }
 
         void write(AsdfFile &file);
@@ -84,10 +85,10 @@ struct convert<Asdf::NDArray<T>>
 {
     static Node encode(const Asdf::NDArray<T> &array)
     {
+        std::cout << "encode" << std::endl;
         Asdf::Node node(array);
         node.SetTag(NDARRAY_TAG);
 
-        std::cout << "encode" << std::endl;
 
         node["source"] = array.get_source();
         node["datatype"] = array.datatype;
@@ -108,9 +109,10 @@ struct convert<Asdf::NDArray<T>>
             return false;
         }
 
-        int source = node["source"].as<int>();
-        std::vector<int> shape = node["shape"].as<std::vector<int>>();
+        auto source = node["source"].as<int>();
+        auto shape = node["shape"].as<std::vector<size_t>>();
 
+        std::cout << "decode" << std::endl;
         const Asdf::Node& asdf_node = static_cast<const Asdf::Node &>(node);
         array = Asdf::NDArray<T>(source, shape, asdf_node.get_asdf_file());
 

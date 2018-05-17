@@ -21,6 +21,7 @@ class Node : public YAML::Node
 {
     public:
         inline Node() : YAML::Node() {}
+        inline Node(AsdfFile *file) : Node() { this->file = file; }
 
         template <typename Key>
             const Node operator[](const Key& key) const;
@@ -36,7 +37,7 @@ class Node : public YAML::Node
         friend class NodeBuilder;
         template <typename T> friend struct YAML::convert;
 
-        AsdfFile *file;
+        AsdfFile *file = nullptr;
 
         inline Node(Zombie zombie) : YAML::Node(zombie) {}
         explicit Node(
@@ -44,6 +45,7 @@ class Node : public YAML::Node
                 YAML::detail::shared_memory_holder pMemory,
                 AsdfFile *file) : YAML::Node(node, pMemory)
         {
+            std::cout << "Node: " << file << std::endl;
             node.set_style(YAML::EmitterStyle::Flow);
             this->file = file;
         }
@@ -51,7 +53,8 @@ class Node : public YAML::Node
         /* This constructor is used when creating an NDArray node */
         Node(const AbstractNDArray &array) : Node()
         {
-            array.register_array_block(file);
+            std::cout << "AbstractNDArray: " << file << std::endl;
+            //array.register_array_block(file);
         }
 };
 
@@ -65,6 +68,8 @@ inline const Node Node::operator[](const Key& key) const {
   if (!value) {
     return Node(ZombieNode);
   }
+
+  std::cout << "passing to node: " << this->file << std::endl;
   return Node(*value, m_pMemory, this->file);
 }
 
@@ -74,6 +79,8 @@ inline Node Node::operator[](const Key& key) {
     throw YAML::InvalidNode();
   EnsureNodeExists();
   YAML::detail::node& value = m_pNode->get(YAML::detail::to_value(key), m_pMemory);
+
+  std::cout << "passing to node: " << this->file << std::endl;
   return Node(value, m_pMemory, this->file);
 }
 

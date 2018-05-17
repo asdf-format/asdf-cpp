@@ -1,7 +1,7 @@
 cmake_minimum_required( VERSION 3.5.2 )
 project( asdf-cpp )
 
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=gnu++11 -Wall -Werror" )
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O1 --std=gnu++11 -Wall -Werror" )
 set( BUILD_SHARED_LIBS OFF )
 
 # The compiler command database can be used by editors for code completion

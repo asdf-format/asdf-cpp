@@ -12,13 +12,22 @@ int main(int argc, char **argv)
     Asdf::AsdfFile asdf;
     Asdf::Node tree = asdf.get_tree();
 
+    std::cout << &asdf << std::endl;
+    std::cout << sizeof(asdf) << std::endl;
+
     tree["foo"] = "hello, world!";
     tree["vec"] = std::vector<int>({1,2,3,4,5});
     tree["bar"] = Asdf::Node();
     tree["bar"]["baz"] = "blurg";
 
-    int *nums = (int *) calloc(1, sizeof(*nums) * 100);
-    tree["array"] = Asdf::NDArray<int>(nums);
+    int array_size = 1000;
+    int *nums = (int *) calloc(1, sizeof(*nums) * array_size);
+    for (int i = 0; i < array_size; i++)
+    {
+        nums[i] = i;
+    }
+
+    tree["array"] = Asdf::NDArray<int>(nums, array_size);
     std::cout << "array" << std::endl;
 
 
