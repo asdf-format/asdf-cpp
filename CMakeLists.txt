@@ -7,6 +7,7 @@ set( BUILD_SHARED_LIBS OFF )
 # The compiler command database can be used by editors for code completion
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+find_package(yaml-cpp REQUIRED)
 
 set( INCLUDE_DIR include )
 include_directories( ${INCLUDE_DIR} )
