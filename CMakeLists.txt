@@ -12,10 +12,6 @@ find_package(yaml-cpp REQUIRED)
 set( INCLUDE_DIR include )
 include_directories( ${INCLUDE_DIR} )
 
-set( HEADER_FILES ${INCLUDE_DIR}/asdf.hpp )
-set( SOURCE_FILES src/asdf.cpp src/parser.cpp src/node.cpp )
-set( TAG_FILES "" )
-
 set(asdf_c_flags ${CMAKE_C_FLAGS})
 set(asdf_cxx_flags ${CMAKE_CXX_FLAGS})
 
@@ -41,7 +37,11 @@ function(add_sources)
   set_property(GLOBAL APPEND PROPERTY SRCS_LIST "${SRCS}")
 endfunction(add_sources)
 
-add_library( asdf-cpp ${SOURCE_FILES} ${TAG_FILES} ${HEADER_FILES} )
+file(GLOB SOURCE_FILES src/[a-z_]*.cpp)
+
+add_sources(${SOURCE_FILES})
+
+add_library( asdf-cpp ${SOURCE_FILES})
 target_link_libraries( asdf-cpp yaml-cpp )
 
 set_target_properties(asdf-cpp PROPERTIES
