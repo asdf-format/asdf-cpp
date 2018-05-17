@@ -160,11 +160,6 @@ void * AsdfFile::get_block(int source) const
     return blocks[source];
 }
 
-void AsdfFile::register_array_block()
-{
-    std::cout << "got here" << std::endl;
-}
-
 std::ostream& operator<<(std::ostream& stream, const AsdfFile &af)
 {
     stream << ASDF_HEADER << " " << ASDF_FILE_FORMAT_VERSION << std::endl;

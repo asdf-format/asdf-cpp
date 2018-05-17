@@ -33,7 +33,10 @@ class AsdfFile
 
     protected:
         template <typename T> friend class NDArray;
-        void register_array_block();
+        template <typename T> void register_array_block(void)
+        {
+            std::cout << "got here!" << std::endl;
+        }
 
     private:
         /* Private members */

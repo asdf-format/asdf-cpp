@@ -65,7 +65,7 @@ class NDArray : public AbstractNDArray
         void register_array_block(AsdfFile *file) const
         {
             std::cout << "please work" << std::endl;
-            file->register_array_block();
+            file->register_array_block<T>();
         }
 
         void write(AsdfFile &file);
