@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <csignal>
 
 #include <yaml-cpp/yaml.h>
 #include "yaml-cpp/node/node.h"
@@ -10,6 +11,7 @@
 #include "yaml-cpp/exceptions.h"
 
 #include <tags/abstract_ndarray.hpp>
+
 
 namespace Asdf {
 
@@ -30,6 +32,8 @@ class Node : public YAML::Node
 
         /* Inherit support for assignment to Node from YAML::Node */
         using YAML::Node::operator=;
+
+        template <typename T> YAML::Node& operator=(const T &rhs);
 
         const AsdfFile *get_asdf_file(void) const;
 
@@ -53,6 +57,7 @@ class Node : public YAML::Node
         /* This constructor is used when creating an NDArray node */
         Node(const AbstractNDArray &array) : Node()
         {
+            std::raise(SIGINT);
             std::cout << "AbstractNDArray: " << file << std::endl;
             //array.register_array_block(file);
         }
@@ -82,6 +87,13 @@ inline Node Node::operator[](const Key& key) {
 
   std::cout << "passing to node: " << this->file << std::endl;
   return Node(value, m_pMemory, this->file);
+}
+
+template <typename T>
+inline YAML::Node& Node::operator=(const T &rhs)
+{
+    std::cout << "whatever man: " << this->file << std::endl;
+    return YAML::Node::operator=(rhs);
 }
 
 } /* namespace Asdf */
