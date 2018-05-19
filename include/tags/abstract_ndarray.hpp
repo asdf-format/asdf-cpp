@@ -21,7 +21,7 @@ class AbstractNDArray
 
         void set_asdf_file(const AsdfFile *file)
         {
-            file = file;
+            this->file = file;
         }
 
     protected:
