@@ -58,8 +58,8 @@ class BlockManager {
         template <typename T> void add_data_block(T *data, size_t length)
         {
             std::cout << "length: " << blocks.size() << std::endl;
-            //auto block = new Block<T>(data, length);
-            //blocks.push_back(std::shared_ptr<GenericBlock>(dynamic_cast<GenericBlock*>(block)));
+            auto block = new Block<T>(data, length);
+            blocks.push_back(std::shared_ptr<GenericBlock>(dynamic_cast<GenericBlock*>(block)));
         }
 
     protected:

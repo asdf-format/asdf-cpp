@@ -56,14 +56,6 @@ class Node : public YAML::Node
             node.set_style(YAML::EmitterStyle::Flow);
             this->file = file;
         }
-
-        /* This constructor is used when creating an NDArray node */
-        Node(const AbstractNDArray &array) : Node()
-        {
-            std::raise(SIGINT);
-            std::cout << "AbstractNDArray: " << file << std::endl;
-            //array.register_array_block(file);
-        }
 };
 
 template <typename Key>
@@ -95,7 +87,7 @@ inline Node Node::operator[](const Key& key) {
 template<typename T, template <typename> class NDArray>
 inline YAML::Node& Node::operator=(const NDArray<T> &rhs)
 {
-    std::cout << "whoeoah" << std::endl;
+    rhs.register_array_block(file);
     return YAML::Node::operator=(rhs);
 }
 

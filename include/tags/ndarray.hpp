@@ -54,6 +54,7 @@ class NDArray : public AbstractNDArray
         }
 
     protected:
+        friend class Node;
         friend struct YAML::convert<Asdf::NDArray<T>>;
         friend struct YAML::as_if<Asdf::NDArray<T>, void>;
 
@@ -86,7 +87,7 @@ struct convert<Asdf::NDArray<T>>
     static Node encode(const Asdf::NDArray<T> &array)
     {
         std::cout << "encode" << std::endl;
-        Asdf::Node node(array);
+        Asdf::Node node;
         node.SetTag(NDARRAY_TAG);
 
 
