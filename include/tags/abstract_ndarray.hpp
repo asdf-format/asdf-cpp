@@ -19,6 +19,11 @@ class AbstractNDArray
             return shape;
         }
 
+        void set_asdf_file(const AsdfFile *file)
+        {
+            file = file;
+        }
+
     protected:
         int source;
         std::string datatype;
