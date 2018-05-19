@@ -17,6 +17,7 @@ namespace Asdf {
 
 /* Forward declarations from other parts of ASDF */
 class AsdfFile;
+template <typename T> class NDArray;
 
 /* Class definition */
 class Node : public YAML::Node
@@ -33,7 +34,9 @@ class Node : public YAML::Node
         /* Inherit support for assignment to Node from YAML::Node */
         using YAML::Node::operator=;
 
-        template <typename T> YAML::Node& operator=(const T &rhs);
+        /* Override assignment operator when assigning NDArray to Node */
+        template<typename T, template <typename> class NDArray>
+            YAML::Node& operator=(const NDArray<T> &rhs);
 
         const AsdfFile *get_asdf_file(void) const;
 
@@ -89,10 +92,10 @@ inline Node Node::operator[](const Key& key) {
   return Node(value, m_pMemory, this->file);
 }
 
-template <typename T>
-inline YAML::Node& Node::operator=(const T &rhs)
+template<typename T, template <typename> class NDArray>
+inline YAML::Node& Node::operator=(const NDArray<T> &rhs)
 {
-    std::cout << "whatever man: " << this->file << std::endl;
+    std::cout << "whoeoah" << std::endl;
     return YAML::Node::operator=(rhs);
 }
 
