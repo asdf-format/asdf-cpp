@@ -21,4 +21,8 @@ typedef struct block_header
 } block_header_t;
 #pragma pack(pop)
 
+const size_t header_size = sizeof(block_header_t) -
+    (sizeof(((block_header_t *) 0)->magic) +
+     sizeof(((block_header_t *) 0)->header_size));
+
 static_assert(sizeof(block_header_t) == 0x36, "Invalid block header size");

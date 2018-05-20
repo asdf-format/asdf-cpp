@@ -5,6 +5,9 @@
 #include <memory>
 #include <iostream>
 
+#include <private/block.hpp>
+
+
 namespace Asdf {
 
 class GenericBlock {
@@ -15,6 +18,7 @@ class GenericBlock {
         friend class BlockManager;
 
         virtual void write(std::ostream &ostream) const = 0;
+        virtual void write_header(std::ostream &ostream) const = 0;
 };
 
 template <typename T>
@@ -32,7 +36,25 @@ class Block : public GenericBlock {
 
         void write(std::ostream &ostream) const
         {
-            ostream << "another block!" << std::endl;
+            write_header(ostream);
+            ostream.write((char *) buff, sizeof(T) * length);
+        }
+
+        void write_header(std::ostream &ostream) const
+        {
+            block_header_t header = {};
+
+            size_t data_size = sizeof(T) * length;
+
+            memcpy(header.magic, asdf_block_magic, sizeof(header.magic));
+            header.header_size = header_size;
+
+            /* For now these are all the same */
+            header.allocated_size = data_size;
+            header.used_size = data_size;
+            header.data_size = data_size;
+
+            ostream.write((char *) &header, sizeof(header));
         }
 
     private:
