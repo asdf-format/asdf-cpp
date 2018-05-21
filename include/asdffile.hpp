@@ -9,13 +9,16 @@
 #include <cstdint>
 
 #include <node.hpp>
-
+#include <private/block_manager.hpp>
 
 namespace Asdf {
+
 class AsdfFile
 {
     public:
         /* Constructors */
+        AsdfFile();
+        /* TODO: consider providing a factory method here instead */
         AsdfFile(std::string filename);
         ~AsdfFile(void);
 
@@ -24,7 +27,21 @@ class AsdfFile
         Node get_tree(void);
         Node operator[] (std::string key);
 
+        friend std::ostream&
+            operator<<(std::ostream& stream, const AsdfFile &af);
+
         void * get_block(int source) const;
+
+    protected:
+        BlockManager block_manager;
+
+        template <typename T> friend class NDArray;
+        template <typename T> int register_array_block(T *data, size_t size)
+        {
+            return block_manager.add_data_block<T>(data, size);
+        }
+
+        void write_blocks(std::ostream &ostream) const;
 
     private:
         /* Private members */

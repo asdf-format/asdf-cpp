@@ -28,6 +28,7 @@
 
 #define ASDF_HEADER             "#ASDF"
 #define ASDF_STANDARD_HEADER    "#ASDF_STANDARD"
+#define YAML_START_MARKER       "---"
 #define YAML_END_MARKER         "..."
 
 
@@ -69,6 +70,11 @@ find_yaml_end(std::stringstream &yaml, std::ifstream &ifs)
 
 namespace Asdf {
 
+AsdfFile::AsdfFile()
+{
+    asdf_tree = Node(this);
+}
+
 AsdfFile::AsdfFile(std::string filename)
 {
     this->filename = filename;
@@ -86,7 +92,6 @@ AsdfFile::AsdfFile(std::string filename)
     }
 
     end_index = find_yaml_end(yaml_data, ifs);
-    std::cout << "end index=" << end_index << std::endl;
 
     /* Reset stream to the beginning of the file */
     /* TODO: this should probably be a close */
@@ -152,6 +157,31 @@ Node AsdfFile::operator[] (std::string key)
 void * AsdfFile::get_block(int source) const
 {
     return blocks[source];
+}
+
+void AsdfFile::write_blocks(std::ostream &ostream) const
+{
+    block_manager.write_blocks(ostream);
+
+    /* TODO: write block index here as well */
+}
+
+std::ostream& operator<<(std::ostream& stream, const AsdfFile &af)
+{
+    stream << ASDF_HEADER << " " << ASDF_FILE_FORMAT_VERSION << std::endl;
+    stream << ASDF_STANDARD_HEADER << " " << ASDF_STANDARD_VERSION << std::endl;
+    stream << "%YAML 1.1" << std::endl;
+    stream << "%TAG ! tag:stsci.edu:asdf/" << std::endl;
+    /* TODO: there may be a more general way to handle the top-level object */
+    stream << YAML_START_MARKER << " " << "!core/asdf-1.1.0" << std::endl;
+
+    stream << af.asdf_tree;
+
+    stream << std::endl << YAML_END_MARKER << std::endl;
+
+    af.write_blocks(stream);
+
+    return stream;
 }
 
 } /* namespace Asdf */

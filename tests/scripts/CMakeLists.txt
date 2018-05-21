@@ -5,3 +5,9 @@ target_link_libraries(read-asdf asdf-cpp)
 set_target_properties(read-asdf PROPERTIES
   COMPILE_FLAGS "${yaml_c_flags} ${yaml_cxx_flags} ${asdf_test_flags}"
 )
+
+add_executable(write-asdf write-asdf.cpp)
+target_link_libraries(write-asdf asdf-cpp)
+set_target_properties(write-asdf PROPERTIES
+  COMPILE_FLAGS "${yaml_c_flags} ${yaml_cxx_flags} ${asdf_test_flags}"
+)
