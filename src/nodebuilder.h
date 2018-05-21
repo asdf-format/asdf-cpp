@@ -7,6 +7,12 @@
 namespace Asdf {
 class Node;
 
+/*
+ * Override YAML::NodeBuilder in order to allow construction of Asdf Node
+ * objects that contain references to a top-level AsdfFile object. This is
+ * necessary in order to enable block allocation for NDArrays while supporting
+ * a reasonable API for creating new nodes.
+ */
 class NodeBuilder : public YAML::NodeBuilder {
     public:
         Node Root(AsdfFile *file) {

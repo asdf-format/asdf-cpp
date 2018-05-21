@@ -47,6 +47,13 @@ class Node : public YAML::Node
         AsdfFile *file = nullptr;
 
         inline Node(Zombie zombie) : YAML::Node(zombie) {}
+
+        /*
+         * This constructor is called by the associated "encode" method for
+         * NDArray. It allows a pointer to the AsdfFile object contained
+         * by the parent Node to be passed to the new Asdf Node when writing
+         * NDArray objects to a file.
+         */
         explicit Node(
                 YAML::detail::node& node,
                 YAML::detail::shared_memory_holder pMemory,
@@ -57,6 +64,10 @@ class Node : public YAML::Node
         }
 };
 
+/*
+ * Override that ensures that top-level AsdfFile object is passed to each new
+ * node that is assigned to the tree.
+ */
 template <typename Key>
 inline const Node Node::operator[](const Key& key) const {
   if (!m_isValid)
@@ -71,6 +82,10 @@ inline const Node Node::operator[](const Key& key) const {
   return Node(*value, m_pMemory, this->file);
 }
 
+/*
+ * Override that ensures that top-level AsdfFile object is passed to each new
+ * node that is assigned to the tree.
+ */
 template <typename Key>
 inline Node Node::operator[](const Key& key) {
   if (!m_isValid)
@@ -81,11 +96,18 @@ inline Node Node::operator[](const Key& key) {
   return Node(value, m_pMemory, this->file);
 }
 
+/*
+ * Override that handles block allocation when assigning NDArrays to tree
+ * nodes.
+ */
 template<typename T, template <typename> class NDArray>
 inline YAML::Node& Node::operator=(const NDArray<T> &rhs)
 {
+    /* Use NDArray callback to register array block with AsdfFile object */
     int source = rhs.register_array_block(file);
     YAML::Node &node = YAML::Node::operator=(rhs);
+
+    /* TODO: this needs to be conditioned on whether the array is inline or not */
     node["source"] = source;
     return node;
 }
