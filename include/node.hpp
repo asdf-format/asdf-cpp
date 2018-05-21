@@ -87,8 +87,10 @@ inline Node Node::operator[](const Key& key) {
 template<typename T, template <typename> class NDArray>
 inline YAML::Node& Node::operator=(const NDArray<T> &rhs)
 {
-    rhs.register_array_block(file);
-    return YAML::Node::operator=(rhs);
+    int source = rhs.register_array_block(file);
+    YAML::Node &node = YAML::Node::operator=(rhs);
+    node["source"] = source;
+    return node;
 }
 
 } /* namespace Asdf */

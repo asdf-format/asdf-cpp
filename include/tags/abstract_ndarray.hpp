@@ -7,7 +7,7 @@ class AsdfFile;
 class AbstractNDArray
 {
     public:
-        virtual void register_array_block(AsdfFile *file) const = 0;
+        virtual int register_array_block(AsdfFile *file) const = 0;
 
         int get_source() const
         {
