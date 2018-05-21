@@ -46,13 +46,12 @@ class Block : public GenericBlock {
 
             size_t data_size = sizeof(T) * length;
 
-            memcpy(header.magic, asdf_block_magic, sizeof(header.magic));
-            header.header_size = header_size;
+            header.set_header_size(header_size);
 
             /* For now these are all the same */
-            header.allocated_size = data_size;
-            header.used_size = data_size;
-            header.data_size = data_size;
+            header.set_allocated_size(data_size);
+            header.set_used_size(data_size);
+            header.set_data_size(data_size);
 
             ostream.write((char *) &header, sizeof(header));
         }

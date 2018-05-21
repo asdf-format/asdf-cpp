@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <cstdint>
+#include <cstring>
 
 
 const uint8_t asdf_block_magic[] = {0xd3, 'B', 'L', 'K'};
@@ -11,13 +12,86 @@ const uint8_t asdf_block_magic[] = {0xd3, 'B', 'L', 'K'};
 typedef struct block_header
 {
     uint8_t     magic[4];
-    uint16_t    header_size;
+    uint8_t     header_size[2];
     uint32_t    flags;
     char        compression[4];
-    uint64_t    allocated_size;
-    uint64_t    used_size;
-    uint64_t    data_size;
+    uint8_t     allocated_size[8];
+    uint8_t     used_size[8];
+    uint8_t     data_size[8];
     uint8_t     checksum[16];
+
+    block_header()
+    {
+        memcpy(magic, asdf_block_magic, sizeof(magic));
+    }
+
+    static inline void unpack_u64be(uint8_t dest[8], uint64_t source)
+    {
+        dest[0] = (source >> 56) & 0xff;
+        dest[1] = (source >> 48) & 0xff;
+        dest[2] = (source >> 40) & 0xff;
+        dest[3] = (source >> 32) & 0xff;
+        dest[4] = (source >> 24) & 0xff;
+        dest[5] = (source >> 16) & 0xff;
+        dest[6] = (source >> 8) & 0xff;
+        dest[7] = source & 0xff;
+    }
+
+    static inline uint64_t pack_u64be(uint8_t source[8])
+    {
+        uint64_t packed =
+            ((uint64_t) source[0] << 56) |
+            ((uint64_t) source[1] << 48) |
+            ((uint64_t) source[2] << 40) |
+            ((uint64_t) source[3] << 32) |
+            ((uint64_t) source[4] << 24) |
+            ((uint64_t) source[5] << 16) |
+            ((uint64_t) source[6] << 8) | source[7];
+
+        return packed;
+    }
+
+    void set_header_size(uint16_t size)
+    {
+        header_size[0] = (size >> 8) & 0xff;
+        header_size[1] = size & 0xff;
+    }
+
+    void set_allocated_size(uint64_t size)
+    {
+        unpack_u64be(allocated_size, size);
+    }
+
+    void set_used_size(uint64_t size)
+    {
+        unpack_u64be(used_size, size);
+    }
+
+    void set_data_size(uint64_t size)
+    {
+        unpack_u64be(data_size, size);
+    }
+
+    uint16_t get_header_size()
+    {
+        return (header_size[0] << 8) | header_size[1];
+    }
+
+    uint64_t get_allocated_size()
+    {
+        return pack_u64be(allocated_size);
+    }
+
+    uint64_t get_used_size()
+    {
+        return pack_u64be(used_size);
+    }
+
+    uint64_t get_data_size()
+    {
+        return pack_u64be(data_size);
+    }
+
 } block_header_t;
 #pragma pack(pop)
 
