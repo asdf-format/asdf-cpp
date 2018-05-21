@@ -22,7 +22,10 @@ typedef struct block_header
 
     block_header()
     {
+        flags = 0;
         memcpy(magic, asdf_block_magic, sizeof(magic));
+        memset(compression, 0, sizeof(compression));
+        memset(checksum, 0, sizeof(checksum));
     }
 
     static inline void unpack_u64be(uint8_t dest[8], uint64_t source)
