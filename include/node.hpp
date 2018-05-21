@@ -52,7 +52,6 @@ class Node : public YAML::Node
                 YAML::detail::shared_memory_holder pMemory,
                 AsdfFile *file) : YAML::Node(node, pMemory)
         {
-            std::cout << "Node: " << file << std::endl;
             node.set_style(YAML::EmitterStyle::Flow);
             this->file = file;
         }
@@ -69,7 +68,6 @@ inline const Node Node::operator[](const Key& key) const {
     return Node(ZombieNode);
   }
 
-  std::cout << "passing to node: " << this->file << std::endl;
   return Node(*value, m_pMemory, this->file);
 }
 
@@ -80,7 +78,6 @@ inline Node Node::operator[](const Key& key) {
   EnsureNodeExists();
   YAML::detail::node& value = m_pNode->get(YAML::detail::to_value(key), m_pMemory);
 
-  std::cout << "passing to node: " << this->file << std::endl;
   return Node(value, m_pMemory, this->file);
 }
 

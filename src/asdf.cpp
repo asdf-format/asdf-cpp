@@ -72,7 +72,6 @@ namespace Asdf {
 
 AsdfFile::AsdfFile()
 {
-    std::cout << "New AsdfFile: " << this << std::endl;
     asdf_tree = Node(this);
 }
 
@@ -93,7 +92,6 @@ AsdfFile::AsdfFile(std::string filename)
     }
 
     end_index = find_yaml_end(yaml_data, ifs);
-    std::cout << "end index=" << end_index << std::endl;
 
     /* Reset stream to the beginning of the file */
     /* TODO: this should probably be a close */

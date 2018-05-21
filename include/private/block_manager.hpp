@@ -64,11 +64,6 @@ class Block : public GenericBlock {
 class BlockManager {
 
     public:
-        BlockManager()
-        {
-            std::cout << blocks.size() << std::endl;
-        }
-
         void write_blocks(std::ostream &ostream) const;
 
         int get_length()

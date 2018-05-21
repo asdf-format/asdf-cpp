@@ -12,9 +12,6 @@ int main(int argc, char **argv)
     Asdf::AsdfFile asdf;
     Asdf::Node tree = asdf.get_tree();
 
-    std::cout << &asdf << std::endl;
-    std::cout << sizeof(asdf) << std::endl;
-
     tree["foo"] = "hello, world!";
     tree["vec"] = std::vector<int>({1,2,3,4,5});
     tree["bar"] = Asdf::Node();
@@ -28,8 +25,6 @@ int main(int argc, char **argv)
     }
 
     tree["array"] = Asdf::NDArray<int>(nums, array_size);
-    std::cout << "array" << std::endl;
-
 
     std::ofstream outfile(argv[1]);
     outfile << asdf;

@@ -84,7 +84,6 @@ struct convert<Asdf::NDArray<T>>
 {
     static Node encode(const Asdf::NDArray<T> &array)
     {
-        std::cout << "encode" << std::endl;
         Asdf::Node node;
         node.SetTag(NDARRAY_TAG);
 
@@ -111,7 +110,6 @@ struct convert<Asdf::NDArray<T>>
         auto source = node["source"].as<int>();
         auto shape = node["shape"].as<std::vector<size_t>>();
 
-        std::cout << "decode" << std::endl;
         const Asdf::Node& asdf_node = static_cast<const Asdf::Node &>(node);
         array = Asdf::NDArray<T>(source, shape, asdf_node.get_asdf_file());
 
