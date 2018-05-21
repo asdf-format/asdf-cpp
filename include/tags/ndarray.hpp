@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <sstream>
+#include <numeric>
 #include <type_traits>
 #include <yaml-cpp/yaml.h>
 
@@ -79,7 +80,13 @@ class NDArray : public AbstractNDArray
          */
         int register_array_block(AsdfFile *file) const
         {
-            return file->register_array_block<T>(data, shape[0]);
+            using std::accumulate;
+            using std::multiplies;
+            using std::begin;
+            using std::end;
+
+            auto size = accumulate(begin(shape), end(shape), 1, multiplies<size_t>());
+            return file->register_array_block<T>(data, size);
         }
 
         void write(AsdfFile &file);

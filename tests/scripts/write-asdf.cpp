@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include <asdf.hpp>
 
 int main(int argc, char **argv)
@@ -25,6 +26,18 @@ int main(int argc, char **argv)
     }
 
     tree["array"] = Asdf::NDArray<int>(nums, array_size);
+
+    int array_2d[10][20];
+    for (int i = 0; i < 10; i++)
+    {
+        for (int j = 0; j < 20; j++)
+        {
+            array_2d[i][j] = 20*i + j;
+        }
+    }
+
+    auto shape = std::vector<size_t> { 10, 20 };
+    tree["2darray"] = Asdf::NDArray<int>((int *) nums, shape);
 
     std::ofstream outfile(argv[1]);
     outfile << asdf;
