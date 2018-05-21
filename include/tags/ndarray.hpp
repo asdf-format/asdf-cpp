@@ -18,11 +18,11 @@ template <typename T>
 class NDArray : public AbstractNDArray
 {
     public:
-        NDArray(T *data, size_t size)
+        NDArray(T *data, std::vector<size_t> shape)
         {
             this->data = data;
-            byteorder = "little";
-            shape = { size };
+            this->byteorder = "little";
+            this->shape = shape;
 
             using std::is_same;
             if (is_same<T, int>::value)
@@ -30,6 +30,10 @@ class NDArray : public AbstractNDArray
                 datatype = "int32";
             }
         }
+
+        /* Simple constructor for a 1D array */
+        NDArray(T *data, size_t shape) :
+            NDArray(data, std::vector<size_t> { shape }) {}
 
         T * read(void)
         {
