@@ -132,10 +132,16 @@ void AsdfFile::find_blocks()
 {
     uint8_t *current = memmap + end_index;
 
-    while (current < (memmap + file_size))
+    while ((current + sizeof(block_header_t)) < (memmap + file_size))
     {
         block_header_t *bh = (block_header_t *)(current);
-        if (memcmp(bh->magic, asdf_block_magic, sizeof(bh->magic)))
+
+        /* Indicates we found the block index */
+        if (memcmp(bh->magic, "#ASD", sizeof(bh->magic)) == 0)
+        {
+            break;
+        }
+        else if (memcmp(bh->magic, asdf_block_magic, sizeof(bh->magic)) != 0)
         {
             throw std::runtime_error("Invalid block header");
         }
