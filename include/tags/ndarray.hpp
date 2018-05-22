@@ -6,6 +6,8 @@
 #include <type_traits>
 #include <yaml-cpp/yaml.h>
 
+#include <private/datatypes.hpp>
+
 #define NDARRAY_TAG_BASE    "tag:stsci.edu:asdf/core/ndarray"
 #define NDARRAY_TAG_VERSION "1.0.0"
 #define NDARRAY_TAG         (NDARRAY_TAG_BASE "-" NDARRAY_TAG_VERSION)
@@ -22,12 +24,7 @@ class NDArray
             this->data = data;
             this->byteorder = "little";
             this->shape = shape;
-
-            using std::is_same;
-            if (is_same<T, int>::value)
-            {
-                datatype = "int32";
-            }
+            this->datatype = dtype_to_string<T>();
         }
 
         /* Simple constructor for a 1D array */
