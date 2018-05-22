@@ -59,7 +59,6 @@ class Node : public YAML::Node
                 YAML::detail::shared_memory_holder pMemory,
                 AsdfFile *file) : YAML::Node(node, pMemory)
         {
-            node.set_style(YAML::EmitterStyle::Flow);
             this->file = file;
         }
 };

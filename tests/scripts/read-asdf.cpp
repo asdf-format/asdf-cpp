@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdio>
+#include <cassert>
 #include <asdf.hpp>
 
 
@@ -13,26 +14,43 @@ int main(int argc, char **argv)
 
     Asdf::AsdfFile asdf(argv[1]);
     Asdf::Node tree = asdf.get_tree();
-    std::cout << "Tag:" << std::endl;
-    std::cout << tree.Tag() << std::endl;
 
-    Asdf::Node top = asdf["top"];
+    /* Print top-level tag */
+    std::cout << "ASDF Tag: " << tree.Tag() << std::endl;
 
-    std::cout << "ASDF tree:" << std::endl;
-    std::cout << top << std::endl;
+    /* Display the entire tree */
+    std::cout << tree << std::endl;
 
-    std::cout << "ASDF Subtree:" << std::endl;
-    std::cout << top["nums"] << std::endl;
+    auto array = tree["array"].as<Asdf::NDArray<int>>();
+    std::cout << array << std::endl;
 
-    Asdf::NDArray<long> data = top["nums"].as<Asdf::NDArray<long>>();
-    std::cout << data << std::endl;
-
-    long *ddata = data.read();
+    int *ddata = array.read();
     for (int i = 0; i < 10; i++)
     {
-        std::cout << std::hex << ddata[i] << std::endl;
+        assert(ddata[i] == i);
     }
 
-    long result = data(10, 256);
-    std::cout << result << std::endl;
+    auto array_2d = tree["2darray"].as<Asdf::NDArray<int>>();
+    std::cout << array_2d << std::endl;
+
+    auto shape = array_2d.get_shape();
+    assert(shape.size() == 2);
+    assert(shape[0] == 10);
+    assert(shape[1] == 20);
+
+    /*
+     * Recast the flat array data block into the original array shape. There
+     * should be a better API for this in the future, including possibly
+     * returning a multi-dimensional vector. It might be safer to do this with
+     * templates, although all APIs will probably require the application to
+     * know something about the array dimensions in advance.
+     */
+    int (*ddata_2d)[20] = reinterpret_cast<int (*)[20]>(array_2d.read());
+    for (int i = 0; i < 10; i++)
+    {
+        for (int j = 0; j < 20; j++)
+        {
+            assert(ddata_2d[i][j] == 20*i + j);
+        }
+    }
 }

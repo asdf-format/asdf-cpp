@@ -130,13 +130,27 @@ void AsdfFile::setup_memmap()
 
 void AsdfFile::find_blocks()
 {
-    block_header_t *bh = (block_header_t *)(memmap + end_index);
-    if (memcmp(bh->magic, asdf_block_magic, sizeof(bh->magic)))
-    {
-        throw std::runtime_error("Invalid block header");
-    }
+    uint8_t *current = memmap + end_index;
 
-    blocks.push_back(memmap + end_index + sizeof(block_header_t));
+    while ((current + sizeof(block_header_t)) < (memmap + file_size))
+    {
+        block_header_t *bh = (block_header_t *)(current);
+
+        /* Indicates we found the block index */
+        if (memcmp(bh->magic, "#ASD", sizeof(bh->magic)) == 0)
+        {
+            break;
+        }
+        else if (memcmp(bh->magic, asdf_block_magic, sizeof(bh->magic)) != 0)
+        {
+            throw std::runtime_error("Invalid block header");
+        }
+
+        const size_t header_size = bh->total_header_size();
+
+        blocks.push_back(current + header_size);
+        current += bh->get_allocated_size() + header_size;
+    }
 }
 
 std::string AsdfFile::get_filename()

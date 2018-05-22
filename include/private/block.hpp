@@ -75,9 +75,16 @@ typedef struct block_header
         unpack_u64be(data_size, size);
     }
 
+    /* Returns the value of the header size field */
     uint16_t get_header_size()
     {
         return (header_size[0] << 8) | header_size[1];
+    }
+
+    /* Returns the actual size of the entire header */
+    size_t total_header_size()
+    {
+        return get_header_size() + sizeof(this->magic) + sizeof(this->header_size);
     }
 
     uint64_t get_allocated_size()

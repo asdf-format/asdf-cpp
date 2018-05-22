@@ -64,7 +64,13 @@ class Block : public GenericBlock {
 class BlockManager {
 
     public:
-        void write_blocks(std::ostream &ostream) const;
+        void write_blocks(std::ostream &ostream) const
+        {
+            for (auto b : blocks)
+            {
+                b->write(ostream);
+            }
+        }
 
         int get_length()
         {

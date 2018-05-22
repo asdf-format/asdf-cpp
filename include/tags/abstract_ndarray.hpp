@@ -43,7 +43,14 @@ class AbstractNDArray
         friend std::ostream&
         operator<<(std::ostream &strm, const AbstractNDArray &array)
         {
-            return strm << "NDArray";
+            strm << "NDArray[ ";
+            for (auto dim : array.shape)
+            {
+                strm << dim << ", ";
+            }
+
+            strm << "], source=" << array.source;
+            return strm;
         }
 };
 

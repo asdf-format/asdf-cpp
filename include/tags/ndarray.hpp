@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <sstream>
+#include <numeric>
 #include <type_traits>
 #include <yaml-cpp/yaml.h>
 
@@ -18,11 +19,11 @@ template <typename T>
 class NDArray : public AbstractNDArray
 {
     public:
-        NDArray(T *data, size_t size)
+        NDArray(T *data, std::vector<size_t> shape)
         {
             this->data = data;
-            byteorder = "little";
-            shape = { size };
+            this->byteorder = "little";
+            this->shape = shape;
 
             using std::is_same;
             if (is_same<T, int>::value)
@@ -31,26 +32,13 @@ class NDArray : public AbstractNDArray
             }
         }
 
+        /* Simple constructor for a 1D array */
+        NDArray(T *data, size_t shape) :
+            NDArray(data, std::vector<size_t> { shape }) {}
+
         T * read(void)
         {
             return (T *) file->get_block(source);
-        }
-
-        template<typename... Longs>
-        T operator()(Longs... indices)
-        {
-            std::vector<long> values = {indices...};
-            if (values.size() != shape.size())
-            {
-                std::stringstream msg;
-                msg << "Given number of array indices (" << values.size();
-                msg << ") doesn't match dimensions (" << shape.size();
-                msg << ")";
-
-                throw std::runtime_error(msg.str());
-            }
-
-            return 1;
         }
 
     protected:
@@ -75,7 +63,13 @@ class NDArray : public AbstractNDArray
          */
         int register_array_block(AsdfFile *file) const
         {
-            return file->register_array_block<T>(data, shape[0]);
+            using std::accumulate;
+            using std::multiplies;
+            using std::begin;
+            using std::end;
+
+            auto size = accumulate(begin(shape), end(shape), 1, multiplies<size_t>());
+            return file->register_array_block<T>(data, size);
         }
 
         void write(AsdfFile &file);
