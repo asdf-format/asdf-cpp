@@ -116,7 +116,7 @@ AsdfFile::AsdfFile(std::stringstream &stream)
     /* TODO: this should probably be a close */
     stream.seekg(0);
 
-    setup_memmap();
+    copy_stream(stream);
     find_blocks();
 
     asdf_tree = Load(yaml_data, this);
@@ -124,9 +124,16 @@ AsdfFile::AsdfFile(std::stringstream &stream)
 
 AsdfFile::~AsdfFile()
 {
-    /* TODO: the mmap may not have been created in all cases */
-    munmap(memmap, file_size);
-    close(fd);
+    if (memmapped)
+    {
+        munmap(data, data_size);
+        close(fd);
+    }
+    else
+    {
+        /* TODO: try using shared pointer instead */
+        free(data);
+    }
 }
 
 void AsdfFile::setup_memmap()
@@ -136,22 +143,40 @@ void AsdfFile::setup_memmap()
     fd = open(filename.c_str(), O_RDONLY);
 
     fstat(fd, &sb);
-    file_size = sb.st_size;
+    data_size = sb.st_size;
 
-    memmap = (uint8_t *) mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
-    if (memmap == MAP_FAILED)
+    data = (uint8_t *) mmap(NULL, data_size, PROT_READ, MAP_SHARED, fd, 0);
+    if (data == MAP_FAILED)
     {
         close(fd);
         std::string msg("Error memory mapping file: ");
         throw std::runtime_error(msg + strerror(errno));
     }
+
+    memmapped = true;
+}
+
+void AsdfFile::copy_stream(std::iostream &stream)
+{
+    stream.seekp(0, std::ios::end);
+    data_size = stream.tellp();
+
+    std::basic_streambuf<char> *sbuf = stream.rdbuf();
+    data = (uint8_t *) malloc(data_size);
+    if (data == nullptr)
+    {
+        std::string msg("Error creating buffer for file data: ");
+        throw std::runtime_error(msg + strerror(errno));
+    }
+
+    sbuf->sgetn((char *) data, data_size);
 }
 
 void AsdfFile::find_blocks()
 {
-    uint8_t *current = memmap + end_index;
+    uint8_t *current = data + end_index;
 
-    while ((current + sizeof(block_header_t)) < (memmap + file_size))
+    while ((current + sizeof(block_header_t)) < (data + data_size))
     {
         block_header_t *bh = (block_header_t *)(current);
 
