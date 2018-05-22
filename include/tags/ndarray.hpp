@@ -105,7 +105,8 @@ class NDArray
                 strm << dim << ", ";
             }
 
-            strm << "], source=" << array.source;
+            strm << "], datatype=" << array.datatype;
+            strm << ", source=" << array.source;
             return strm;
         }
 
