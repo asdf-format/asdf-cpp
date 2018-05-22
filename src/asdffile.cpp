@@ -77,9 +77,7 @@ AsdfFile::AsdfFile()
 
 AsdfFile::AsdfFile(std::string filename)
 {
-    this->filename = filename;
-
-    ifs.open(this->filename);
+    std::ifstream ifs(filename);
     if (ifs.fail())
     {
         std::string msg("Error opening " + filename + ": ");
@@ -91,13 +89,14 @@ AsdfFile::AsdfFile(std::string filename)
         throw std::runtime_error("Invalid ASDF header");
     }
 
+    std::stringstream yaml_data;
     end_index = find_yaml_end(yaml_data, ifs);
 
     /* Reset stream to the beginning of the file */
     /* TODO: this should probably be a close */
     ifs.seekg(0);
 
-    setup_memmap();
+    setup_memmap(filename);
     find_blocks();
 
     asdf_tree = Load(yaml_data, this);
@@ -110,6 +109,7 @@ AsdfFile::AsdfFile(std::stringstream &stream)
         throw std::runtime_error("Invalid ASDF header");
     }
 
+    std::stringstream yaml_data;
     end_index = find_yaml_end(yaml_data, stream);
 
     /* Reset stream to the beginning of the file */
@@ -136,7 +136,7 @@ AsdfFile::~AsdfFile()
     }
 }
 
-void AsdfFile::setup_memmap()
+void AsdfFile::setup_memmap(std::string filename)
 {
     struct stat sb;
 
@@ -195,11 +195,6 @@ void AsdfFile::find_blocks()
         blocks.push_back(current + header_size);
         current += bh->get_allocated_size() + header_size;
     }
-}
-
-std::string AsdfFile::get_filename()
-{
-    return filename;
 }
 
 Node AsdfFile::get_tree()

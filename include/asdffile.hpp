@@ -46,10 +46,6 @@ class AsdfFile
 
     private:
         /* Private members */
-        std::ifstream ifs;
-        std::stringstream yaml_data;
-        std::string filename;
-
         Node asdf_tree;
 
         int fd = -1;
@@ -64,7 +60,7 @@ class AsdfFile
         std::vector<uint8_t *> blocks;
 
         /* Private methods */
-        void setup_memmap(void);
+        void setup_memmap(std::string filename);
         void copy_stream(std::iostream &stream);
 
         void find_blocks(void);
