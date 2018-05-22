@@ -37,7 +37,7 @@ int main(int argc, char **argv)
     }
 
     auto shape = std::vector<size_t> { 10, 20 };
-    tree["2darray"] = Asdf::NDArray<int>((int *) nums, shape);
+    tree["2darray"] = Asdf::NDArray<int>((int *) array_2d, shape);
 
     std::ofstream outfile(argv[1]);
     outfile << asdf;
