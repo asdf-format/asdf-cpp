@@ -20,6 +20,7 @@ class AsdfFile
         AsdfFile();
         /* TODO: consider providing a factory method here instead */
         AsdfFile(std::string filename);
+        AsdfFile(std::stringstream &stream);
         ~AsdfFile(void);
 
         /* Getters/Setters */
