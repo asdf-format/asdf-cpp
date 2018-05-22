@@ -6,8 +6,6 @@
 #include <type_traits>
 #include <yaml-cpp/yaml.h>
 
-#include "abstract_ndarray.hpp"
-
 #define NDARRAY_TAG_BASE    "tag:stsci.edu:asdf/core/ndarray"
 #define NDARRAY_TAG_VERSION "1.0.0"
 #define NDARRAY_TAG         (NDARRAY_TAG_BASE "-" NDARRAY_TAG_VERSION)
@@ -16,7 +14,7 @@
 namespace Asdf {
 
 template <typename T>
-class NDArray : public AbstractNDArray
+class NDArray
 {
     public:
         NDArray(T *data, std::vector<size_t> shape)
@@ -36,6 +34,16 @@ class NDArray : public AbstractNDArray
         NDArray(T *data, size_t shape) :
             NDArray(data, std::vector<size_t> { shape }) {}
 
+        int get_source() const
+        {
+            return source;
+        }
+
+        std::vector<size_t> get_shape() const
+        {
+            return shape;
+        }
+
         T * read(void)
         {
             return (T *) file->get_block(source);
@@ -46,15 +54,25 @@ class NDArray : public AbstractNDArray
         friend struct YAML::convert<Asdf::NDArray<T>>;
         friend struct YAML::as_if<Asdf::NDArray<T>, void>;
 
-        NDArray() : AbstractNDArray() {}
+        int source;
+        std::string datatype;
+        std::string byteorder;
+        std::vector<size_t> shape;
+        const AsdfFile *file;
+
+        NDArray() { file = nullptr; }
 
         /*
          * This constructor is called when creating a new NDArray object from a
          * YAML representation (in the "decode" method defined below). It is
          * protected since it will never be used by application code.
          */
-        NDArray(int source, std::vector<size_t> shape, const AsdfFile *file) :
-            AbstractNDArray(source, shape, file) {}
+        NDArray(int source, std::vector<size_t> shape, const AsdfFile *file)
+        {
+            this->source = source;
+            this->shape = shape;
+            this->file = file;
+        }
 
         /* 
          * This callback is used to register the associated NDArray data as a
@@ -73,6 +91,19 @@ class NDArray : public AbstractNDArray
         }
 
         void write(AsdfFile &file);
+
+        friend std::ostream&
+        operator<<(std::ostream &strm, const NDArray<T> &array)
+        {
+            strm << "NDArray[ ";
+            for (auto dim : array.shape)
+            {
+                strm << dim << ", ";
+            }
+
+            strm << "], source=" << array.source;
+            return strm;
+        }
 
     private:
         T * data = nullptr;

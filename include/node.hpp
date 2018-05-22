@@ -10,8 +10,6 @@
 #include "yaml-cpp/node/detail/node.h"
 #include "yaml-cpp/exceptions.h"
 
-#include <tags/abstract_ndarray.hpp>
-
 
 namespace Asdf {
 
