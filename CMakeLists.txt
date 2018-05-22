@@ -53,4 +53,5 @@ option(ASDF_CPP_BUILD_TESTS "Enable testing" ON)
 
 if(ASDF_CPP_BUILD_TESTS)
     add_subdirectory(tests)
+    add_subdirectory(examples)
 endif()
