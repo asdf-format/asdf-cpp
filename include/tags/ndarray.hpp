@@ -6,6 +6,8 @@
 #include <type_traits>
 #include <yaml-cpp/yaml.h>
 
+#include <private/datatypes.hpp>
+
 #define NDARRAY_TAG_BASE    "tag:stsci.edu:asdf/core/ndarray"
 #define NDARRAY_TAG_VERSION "1.0.0"
 #define NDARRAY_TAG         (NDARRAY_TAG_BASE "-" NDARRAY_TAG_VERSION)
@@ -22,12 +24,7 @@ class NDArray
             this->data = data;
             this->byteorder = "little";
             this->shape = shape;
-
-            using std::is_same;
-            if (is_same<T, int>::value)
-            {
-                datatype = "int32";
-            }
+            this->datatype = dtype_to_string<T>();
         }
 
         /* Simple constructor for a 1D array */
@@ -67,10 +64,17 @@ class NDArray
          * YAML representation (in the "decode" method defined below). It is
          * protected since it will never be used by application code.
          */
-        NDArray(int source, std::vector<size_t> shape, const AsdfFile *file)
+        NDArray(int source, std::vector<size_t> shape, std::string datatype, const AsdfFile *file)
         {
+            if (not dtype_matches<T>(datatype))
+            {
+                throw std::runtime_error(
+                    "Incompatible template argument for NDArray with datatype " + datatype);
+            }
+
             this->source = source;
             this->shape = shape;
+            this->datatype = datatype;
             this->file = file;
         }
 
@@ -101,7 +105,8 @@ class NDArray
                 strm << dim << ", ";
             }
 
-            strm << "], source=" << array.source;
+            strm << "], datatype=" << array.datatype;
+            strm << ", source=" << array.source;
             return strm;
         }
 
@@ -156,9 +161,10 @@ struct convert<Asdf::NDArray<T>>
 
         auto source = node["source"].as<int>();
         auto shape = node["shape"].as<std::vector<size_t>>();
+        auto datatype = node["datatype"].as<std::string>();
 
         const Asdf::Node& asdf_node = static_cast<const Asdf::Node &>(node);
-        array = Asdf::NDArray<T>(source, shape, asdf_node.get_asdf_file());
+        array = Asdf::NDArray<T>(source, shape, datatype, asdf_node.get_asdf_file());
 
         return true;
     }

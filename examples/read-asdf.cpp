@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cassert>
+#include <random>
 #include <asdf.hpp>
 
 
@@ -53,4 +54,27 @@ int main(int argc, char **argv)
             assert(ddata_2d[i][j] == 20*i + j);
         }
     }
+
+    auto alphabet = tree["alphabet"].as<Asdf::NDArray<char>>();
+    std::cout << alphabet << std::endl;
+
+    char *alpha_buff = alphabet.read();
+    for (size_t i = 0; i < alphabet.get_shape()[0]; i++)
+    {
+        assert(alpha_buff[i] == 'a' + (char) i);
+    }
+
+    auto random = tree["random"].as<Asdf::NDArray<double>>();
+    std::cout << random << std::endl;
+
+    /* Use same seed for random engine as was used to create the file */
+    std::ranlux48 engine(0);
+    std::uniform_real_distribution<double> dist;
+
+    double *rand_buff = random.read();
+    for (size_t i = 0; i < alphabet.get_shape()[0]; i++)
+    {
+        assert(rand_buff[i] == dist(engine));
+    }
+
 }
