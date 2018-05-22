@@ -2,6 +2,7 @@
 #include <vector>
 #include <asdf.hpp>
 
+
 int main(int argc, char **argv)
 {
     if (argc != 2)
@@ -18,6 +19,7 @@ int main(int argc, char **argv)
     tree["bar"] = Asdf::Node();
     tree["bar"]["baz"] = "blurg";
 
+    /* Create 1D array of integers */
     int array_size = 1000;
     int *nums = (int *) calloc(1, sizeof(*nums) * array_size);
     for (int i = 0; i < array_size; i++)
@@ -27,7 +29,8 @@ int main(int argc, char **argv)
 
     tree["array"] = Asdf::NDArray<int>(nums, array_size);
 
-    int array_2d[10][20];
+    /* Create 2D array of integers */
+    int array_2d[10][20] = {};
     for (int i = 0; i < 10; i++)
     {
         for (int j = 0; j < 20; j++)
@@ -38,6 +41,15 @@ int main(int argc, char **argv)
 
     auto shape = std::vector<size_t> { 10, 20 };
     tree["2darray"] = Asdf::NDArray<int>((int *) array_2d, shape);
+
+    /* Create 1D array of characters */
+    char alphabet[26] = {};
+    for (int i = 0; i < 26; i++)
+    {
+        alphabet[i] = 'a' + (char) i;
+    }
+
+    tree["alphabet"] = Asdf::NDArray<char>(alphabet, 26);
 
     std::ofstream outfile(argv[1]);
     outfile << asdf;

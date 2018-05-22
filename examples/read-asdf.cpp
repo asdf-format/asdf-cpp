@@ -53,4 +53,11 @@ int main(int argc, char **argv)
             assert(ddata_2d[i][j] == 20*i + j);
         }
     }
+
+    auto alphabet = tree["alphabet"].as<Asdf::NDArray<char>>();
+    char *alpha_buff = alphabet.read();
+    for (int i = 0; i < alphabet.get_shape()[0]; i++)
+    {
+        assert(alpha_buff[i] == 'a' + (char) i);
+    }
 }
