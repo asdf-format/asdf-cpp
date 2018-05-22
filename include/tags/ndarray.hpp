@@ -64,10 +64,17 @@ class NDArray
          * YAML representation (in the "decode" method defined below). It is
          * protected since it will never be used by application code.
          */
-        NDArray(int source, std::vector<size_t> shape, const AsdfFile *file)
+        NDArray(int source, std::vector<size_t> shape, std::string datatype, const AsdfFile *file)
         {
+            if (not dtype_matches<T>(datatype))
+            {
+                throw std::runtime_error(
+                    "Incompatible template argument for NDArray with datatype " + datatype);
+            }
+
             this->source = source;
             this->shape = shape;
+            this->datatype = datatype;
             this->file = file;
         }
 
@@ -153,9 +160,10 @@ struct convert<Asdf::NDArray<T>>
 
         auto source = node["source"].as<int>();
         auto shape = node["shape"].as<std::vector<size_t>>();
+        auto datatype = node["datatype"].as<std::string>();
 
         const Asdf::Node& asdf_node = static_cast<const Asdf::Node &>(node);
-        array = Asdf::NDArray<T>(source, shape, asdf_node.get_asdf_file());
+        array = Asdf::NDArray<T>(source, shape, datatype, asdf_node.get_asdf_file());
 
         return true;
     }
