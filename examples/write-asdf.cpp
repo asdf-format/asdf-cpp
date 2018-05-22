@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <random>
 #include <asdf.hpp>
 
 
@@ -50,6 +51,19 @@ int main(int argc, char **argv)
     }
 
     tree["alphabet"] = Asdf::NDArray<char>(alphabet, 26);
+
+
+    /* Create 1D array of pseudo-random doubles */
+    std::ranlux48 engine(0);
+    std::uniform_real_distribution<double> dist;
+    std::vector<double> random;
+
+    for (int i = 0; i < 1024; i++)
+    {
+        random.push_back(dist(engine));
+    }
+
+    tree["random"] = Asdf::NDArray<double>(random.data(), random.size());
 
     std::ofstream outfile(argv[1]);
     outfile << asdf;
