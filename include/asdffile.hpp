@@ -20,6 +20,7 @@ class AsdfFile
         AsdfFile();
         /* TODO: consider providing a factory method here instead */
         AsdfFile(std::string filename);
+        AsdfFile(std::stringstream &stream);
         ~AsdfFile(void);
 
         /* Getters/Setters */
@@ -45,22 +46,23 @@ class AsdfFile
 
     private:
         /* Private members */
-        std::ifstream ifs;
-        std::stringstream yaml_data;
-        std::string filename;
-
         Node asdf_tree;
 
         int fd = -1;
-        long file_size = 0;
-        uint8_t *memmap = nullptr;
+        size_t data_size = 0;
+        /* TODO: make this a shared pointer */
+        uint8_t *data = nullptr;
+
+        bool memmapped = false;
 
         std::streampos end_index = 0;
 
         std::vector<uint8_t *> blocks;
 
         /* Private methods */
-        void setup_memmap(void);
+        void setup_memmap(std::string filename);
+        void copy_stream(std::iostream &stream);
+
         void find_blocks(void);
 
 }; /* AsdfFile class */

@@ -32,17 +32,17 @@
 #define YAML_END_MARKER         "..."
 
 
-static bool parse_header(std::ifstream &ifs)
+static bool parse_header(std::istream &stream)
 {
     std::string line;
-    std::getline(ifs, line);
+    std::getline(stream, line);
 
     if (line.compare(0, strlen(ASDF_HEADER), ASDF_HEADER))
     {
         return false;
     }
 
-    std::getline(ifs, line);
+    std::getline(stream, line);
     if (line.compare(0, strlen(ASDF_STANDARD_HEADER), ASDF_STANDARD_HEADER))
     {
         return false;
@@ -52,11 +52,11 @@ static bool parse_header(std::ifstream &ifs)
 }
 
 static std::streampos
-find_yaml_end(std::stringstream &yaml, std::ifstream &ifs)
+find_yaml_end(std::stringstream &yaml, std::istream &stream)
 {
     std::string line;
 
-    while(std::getline(ifs, line))
+    while(std::getline(stream, line))
     {
         yaml << line << std::endl;
         if (line.compare(YAML_END_MARKER) == 0)
@@ -65,7 +65,7 @@ find_yaml_end(std::stringstream &yaml, std::ifstream &ifs)
         }
     }
 
-    return ifs.tellg();
+    return stream.tellg();
 }
 
 namespace Asdf {
@@ -77,9 +77,7 @@ AsdfFile::AsdfFile()
 
 AsdfFile::AsdfFile(std::string filename)
 {
-    this->filename = filename;
-
-    ifs.open(this->filename);
+    std::ifstream ifs(filename);
     if (ifs.fail())
     {
         std::string msg("Error opening " + filename + ": ");
@@ -91,13 +89,34 @@ AsdfFile::AsdfFile(std::string filename)
         throw std::runtime_error("Invalid ASDF header");
     }
 
+    std::stringstream yaml_data;
     end_index = find_yaml_end(yaml_data, ifs);
 
     /* Reset stream to the beginning of the file */
     /* TODO: this should probably be a close */
     ifs.seekg(0);
 
-    setup_memmap();
+    setup_memmap(filename);
+    find_blocks();
+
+    asdf_tree = Load(yaml_data, this);
+}
+
+AsdfFile::AsdfFile(std::stringstream &stream)
+{
+    if (!parse_header(stream))
+    {
+        throw std::runtime_error("Invalid ASDF header");
+    }
+
+    std::stringstream yaml_data;
+    end_index = find_yaml_end(yaml_data, stream);
+
+    /* Reset stream to the beginning of the file */
+    /* TODO: this should probably be a close */
+    stream.seekg(0);
+
+    copy_stream(stream);
     find_blocks();
 
     asdf_tree = Load(yaml_data, this);
@@ -105,34 +124,59 @@ AsdfFile::AsdfFile(std::string filename)
 
 AsdfFile::~AsdfFile()
 {
-    /* TODO: the mmap may not have been created in all cases */
-    munmap(memmap, file_size);
-    close(fd);
+    if (memmapped)
+    {
+        munmap(data, data_size);
+        close(fd);
+    }
+    else
+    {
+        /* TODO: try using shared pointer instead */
+        free(data);
+    }
 }
 
-void AsdfFile::setup_memmap()
+void AsdfFile::setup_memmap(std::string filename)
 {
     struct stat sb;
 
     fd = open(filename.c_str(), O_RDONLY);
 
     fstat(fd, &sb);
-    file_size = sb.st_size;
+    data_size = sb.st_size;
 
-    memmap = (uint8_t *) mmap(NULL, file_size, PROT_READ, MAP_SHARED, fd, 0);
-    if (memmap == MAP_FAILED)
+    data = (uint8_t *) mmap(NULL, data_size, PROT_READ, MAP_SHARED, fd, 0);
+    if (data == MAP_FAILED)
     {
         close(fd);
         std::string msg("Error memory mapping file: ");
         throw std::runtime_error(msg + strerror(errno));
     }
+
+    memmapped = true;
+}
+
+void AsdfFile::copy_stream(std::iostream &stream)
+{
+    stream.seekp(0, std::ios::end);
+    data_size = stream.tellp();
+
+    std::basic_streambuf<char> *sbuf = stream.rdbuf();
+    data = (uint8_t *) malloc(data_size);
+    if (data == nullptr)
+    {
+        std::string msg("Error creating buffer for file data: ");
+        throw std::runtime_error(msg + strerror(errno));
+    }
+
+    sbuf->sgetn((char *) data, data_size);
 }
 
 void AsdfFile::find_blocks()
 {
-    uint8_t *current = memmap + end_index;
+    uint8_t *current = data + end_index;
 
-    while ((current + sizeof(block_header_t)) < (memmap + file_size))
+    while ((current + sizeof(block_header_t)) < (data + data_size))
     {
         block_header_t *bh = (block_header_t *)(current);
 
@@ -151,11 +195,6 @@ void AsdfFile::find_blocks()
         blocks.push_back(current + header_size);
         current += bh->get_allocated_size() + header_size;
     }
-}
-
-std::string AsdfFile::get_filename()
-{
-    return filename;
 }
 
 Node AsdfFile::get_tree()
