@@ -1,8 +1,7 @@
 #pragma once
 
-#include "yaml-cpp/nodebuilder.h"
-
-#include <node.hpp>
+#include <yaml-cpp/nodebuilder.h>
+#include <asdf-cpp/node.hpp>
 
 namespace Asdf {
 class Node;

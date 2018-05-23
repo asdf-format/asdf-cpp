@@ -1,0 +1,14 @@
+# - Config file for the asdf-cpp package
+# It defines the following variables
+#  ASDF_CPP_INCLUDE_DIR - include directory
+#  ASDF_CPP_LIBRARIES    - libraries to link against
+
+# Compute paths
+get_filename_component(ASDF_CPP_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+set(ASDF_CPP_INCLUDE_DIR "@CONFIG_INCLUDE_DIRS@")
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+include("${ASDF_CPP_CMAKE_DIR}/asdf-cpp-targets.cmake")
+
+# These are IMPORTED targets created by yaml-cpp-targets.cmake
+set(ASDF_CPP_LIBRARIES "@EXPORT_TARGETS@")

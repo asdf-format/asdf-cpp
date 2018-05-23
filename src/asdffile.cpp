@@ -21,10 +21,10 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <asdf.hpp>
-#include <node.hpp>
-#include <private/parser.hpp>
-#include <private/block.hpp>
+#include <asdf-cpp/asdf.hpp>
+#include <asdf-cpp/node.hpp>
+#include <asdf-cpp/block.hpp>
+#include <asdf-cpp/private/parser.hpp>
 
 #define ASDF_HEADER             "#ASDF"
 #define ASDF_STANDARD_HEADER    "#ASDF_STANDARD"

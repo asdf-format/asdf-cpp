@@ -3,8 +3,8 @@
 #include <string>
 #include <sstream>
 
-#include <node.hpp>
-#include <asdffile.hpp>
+#include "../node.hpp"
+#include "../asdffile.hpp"
 
 
 namespace Asdf {

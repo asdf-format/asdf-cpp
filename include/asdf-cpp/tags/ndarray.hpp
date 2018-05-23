@@ -6,7 +6,7 @@
 #include <type_traits>
 #include <yaml-cpp/yaml.h>
 
-#include <private/datatypes.hpp>
+#include "../datatypes.hpp"
 
 #define NDARRAY_TAG_BASE    "tag:stsci.edu:asdf/core/ndarray"
 #define NDARRAY_TAG_VERSION "1.0.0"

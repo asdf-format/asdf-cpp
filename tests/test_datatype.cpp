@@ -1,9 +1,9 @@
 #include <cstdint>
 
-#include <asdf.hpp>
 #include "gtest/gtest.h"
 
-#include <private/datatypes.hpp>
+#include <asdf-cpp/asdf.hpp>
+#include <asdf-cpp/datatypes.hpp>
 
 
 TEST(DatatypeTest, DtypeToString)
