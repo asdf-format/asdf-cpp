@@ -17,6 +17,10 @@ set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(yaml-cpp REQUIRED)
 
+# Look for optional compression packages
+find_package(zlib)
+find_package(bzip2)
+
 set( INCLUDE_DIR include )
 include_directories( ${INCLUDE_DIR} )
 
@@ -34,6 +38,14 @@ target_link_libraries( asdf-cpp yaml-cpp )
 set_target_properties(asdf-cpp PROPERTIES
   COMPILE_FLAGS "${asdf_c_flags} ${asdf_cxx_flags}"
 )
+
+if (${ZLIB_FOUND})
+    target_compile_definitions(asdf-cpp PRIVATE HAS_ZLIB=1)
+endif()
+
+if (${BZIP2_FOUND})
+    target_compile_definitions(asdf-cpp PRIVATE HAS_BZIP2=1)
+endif()
 
 enable_testing()
 option(ASDF_CPP_BUILD_TESTS "Enable testing" ON)
