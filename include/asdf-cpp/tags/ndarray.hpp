@@ -50,6 +50,12 @@ class NDArray
             return  (T *)(block_data + header->total_header_size());
         }
 
+        std::shared_ptr<T> read(void)
+        {
+            return reinterpret_cast<std::shared_ptr<T>>(
+                    process_block(file->get_block(source)));
+        }
+
     protected:
         friend class Node;
         friend struct YAML::convert<Asdf::NDArray<T>>;
@@ -99,6 +105,7 @@ class NDArray
         }
 
         void write(AsdfFile &file);
+        std::shared_ptr<void> process_block(const void *block_data);
 
         friend std::ostream&
         operator<<(std::ostream &strm, const NDArray<T> &array)
