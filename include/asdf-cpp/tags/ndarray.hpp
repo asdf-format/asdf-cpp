@@ -8,6 +8,7 @@
 
 #include "../datatypes.hpp"
 #include "../compression.hpp"
+#include "../block.hpp"
 
 #define NDARRAY_TAG_BASE    "tag:stsci.edu:asdf/core/ndarray"
 #define NDARRAY_TAG_VERSION "1.0.0"
@@ -44,7 +45,9 @@ class NDArray
 
         T * read(void)
         {
-            return (T *) file->get_block(source);
+            uint8_t *block_data = (uint8_t *) file->get_block(source);
+            block_header_t *header = (block_header_t *) block_data;
+            return  (T *)(block_data + header->total_header_size());
         }
 
     protected:

@@ -190,10 +190,8 @@ void AsdfFile::find_blocks()
             throw std::runtime_error("Invalid block header");
         }
 
-        const size_t header_size = bh->total_header_size();
-
-        blocks.push_back(current + header_size);
-        current += bh->get_allocated_size() + header_size;
+        blocks.push_back(current);
+        current += bh->get_allocated_size() + bh->total_header_size();
     }
 }
 
