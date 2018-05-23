@@ -7,6 +7,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../datatypes.hpp"
+#include "../compression.hpp"
 
 #define NDARRAY_TAG_BASE    "tag:stsci.edu:asdf/core/ndarray"
 #define NDARRAY_TAG_VERSION "1.0.0"

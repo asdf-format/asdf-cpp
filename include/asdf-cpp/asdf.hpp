@@ -3,6 +3,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "asdffile.hpp"
+#include "compression.hpp"
 #include "tags/ndarray.hpp"
 
 #define ASDF_FILE_FORMAT_VERSION    "1.0.0"
