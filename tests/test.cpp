@@ -37,7 +37,7 @@ TEST(ReaderTest, FromStream)
     EXPECT_EQ(new_tree["top"].as<std::string>(), "hello");
 
     auto num_array = new_tree["nums"].as<NDArray<int>>();
-    int *data = num_array.read();
+    int *data = num_array.get_raw_data();
     for (int i = 0; i < 100; i++)
     {
         EXPECT_EQ(data[i], i);
