@@ -3,7 +3,7 @@
 #include <asdf.hpp>
 #include "gtest/gtest.h"
 
-#include <private/datatypes.hpp>
+#include <datatypes.hpp>
 
 
 TEST(DatatypeTest, DtypeToString)

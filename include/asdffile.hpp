@@ -9,7 +9,7 @@
 #include <cstdint>
 
 #include <node.hpp>
-#include <private/block_manager.hpp>
+#include <block_manager.hpp>
 
 namespace Asdf {
 

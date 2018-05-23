@@ -23,8 +23,8 @@
 
 #include <asdf.hpp>
 #include <node.hpp>
+#include <block.hpp>
 #include <private/parser.hpp>
-#include <private/block.hpp>
 
 #define ASDF_HEADER             "#ASDF"
 #define ASDF_STANDARD_HEADER    "#ASDF_STANDARD"
