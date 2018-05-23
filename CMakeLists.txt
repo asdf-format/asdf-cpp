@@ -1,5 +1,11 @@
 cmake_minimum_required( VERSION 3.5.2 )
-project( asdf-cpp )
+project( ASDF_CPP )
+
+set(ASDF_CPP_VERSION_MAJOR "0")
+set(ASDF_CPP_VERSION_MINOR "1")
+set(ASDF_CPP_VERSION_PATCH "0")
+set(ASDF_CPP_VERSION
+    "${ASDF_CPP_VERSION_MAJOR}.${ASDF_CPP_VERSION_MINOR}.${ASDF_CPP_VERSION_PATCH}")
 
 include(CMakeFunctions.txt)
 
@@ -40,7 +46,10 @@ endif()
 #
 # Installation
 #
-set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/${LIB_SUFFIX}")
+set(INCLUDE_INSTALL_ROOT_DIR ${CMAKE_INSTALL_PREFIX}/include)
+set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/lib/${LIB_SUFFIX}")
+set(INSTALL_CMAKE_DIR ${LIB_INSTALL_DIR}/cmake/asdf-cpp)
+
 install(
     TARGETS asdf-cpp EXPORT asdf-cpp-targets ${_INSTALL_DESTINATIONS}
     RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
@@ -53,3 +62,31 @@ install(
     FILES_MATCHING PATTERN "*.hpp"
     PATTERN "private" EXCLUDE
 )
+
+export(TARGETS asdf-cpp FILE "${PROJECT_BINARY_DIR}/asdf-cpp-targets.cmake")
+export(PACKAGE asdf-cpp)
+set(EXPORT_TARGETS asdf-cpp CACHE INTERNAL "export targets")
+
+set(CONFIG_INCLUDE_DIRS "${ASDF_CPP_SOURCE_DIR}/include")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/asdf-cpp-config.cmake.in
+	"${PROJECT_BINARY_DIR}/asdf-cpp-config.cmake" @ONLY)
+
+file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" "${INCLUDE_INSTALL_ROOT_DIR}")
+set(CONFIG_INCLUDE_DIRS "\${ASDF_CPP_CMAKE_DIR}/${REL_INCLUDE_DIR}")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/asdf-cpp-config.cmake.in
+	"${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/asdf-cpp-config.cmake" @ONLY)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/asdf-cpp-config-version.cmake.in
+	"${PROJECT_BINARY_DIR}/asdf-cpp-config-version.cmake" @ONLY)
+
+install(FILES
+	"${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/asdf-cpp-config.cmake"
+	"${PROJECT_BINARY_DIR}/asdf-cpp-config-version.cmake"
+	DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+install(EXPORT asdf-cpp-targets DESTINATION ${INSTALL_CMAKE_DIR})
+
+if(UNIX)
+    set(PC_FILE ${CMAKE_BINARY_DIR}/asdf-cpp.pc)
+    configure_file("asdf-cpp.pc.cmake" ${PC_FILE} @ONLY)
+    install(FILES ${PC_FILE} DESTINATION ${LIB_INSTALL_DIR}/pkgconfig)
+endif()
