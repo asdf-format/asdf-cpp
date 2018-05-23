@@ -55,3 +55,20 @@ if(ASDF_CPP_BUILD_TESTS)
     add_subdirectory(tests)
     add_subdirectory(examples)
 endif()
+
+#
+# Installation
+#
+set(LIB_INSTALL_DIR "${CMAKE_INSTALL_PREFIX}/${LIB_SUFFIX}")
+install(
+    TARGETS asdf-cpp EXPORT asdf-cpp-targets ${_INSTALL_DESTINATIONS}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+    LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${LIB_SUFFIX}"
+    ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}"
+)
+install(
+    DIRECTORY include
+    DESTINATION ${CMAKE_INSTALL_PREFIX}
+    FILES_MATCHING PATTERN "*.hpp"
+    PATTERN "private" EXCLUDE
+)
