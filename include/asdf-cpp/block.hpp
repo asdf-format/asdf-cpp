@@ -40,7 +40,7 @@ typedef struct block_header
         dest[7] = source & 0xff;
     }
 
-    static inline uint64_t pack_u64be(uint8_t source[8])
+    static inline uint64_t pack_u64be(const uint8_t source[8])
     {
         uint64_t packed =
             ((uint64_t) source[0] << 56) |
@@ -76,28 +76,28 @@ typedef struct block_header
     }
 
     /* Returns the value of the header size field */
-    uint16_t get_header_size()
+    uint16_t get_header_size() const
     {
         return (header_size[0] << 8) | header_size[1];
     }
 
     /* Returns the actual size of the entire header */
-    size_t total_header_size()
+    size_t total_header_size() const
     {
         return get_header_size() + sizeof(this->magic) + sizeof(this->header_size);
     }
 
-    uint64_t get_allocated_size()
+    uint64_t get_allocated_size() const
     {
         return pack_u64be(allocated_size);
     }
 
-    uint64_t get_used_size()
+    uint64_t get_used_size() const
     {
         return pack_u64be(used_size);
     }
 
-    uint64_t get_data_size()
+    uint64_t get_data_size() const
     {
         return pack_u64be(data_size);
     }

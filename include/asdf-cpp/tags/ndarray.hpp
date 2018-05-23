@@ -45,8 +45,8 @@ class NDArray
 
         T * get_raw_data(void)
         {
-            uint8_t *block_data = (uint8_t *) file->get_block(source);
-            block_header_t *header = (block_header_t *) block_data;
+            const uint8_t *block_data = (const uint8_t *) file->get_block(source);
+            const block_header_t *header = (const block_header_t *) block_data;
             return  (T *)(block_data + header->total_header_size());
         }
 
