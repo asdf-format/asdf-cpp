@@ -45,7 +45,7 @@ add_library( asdf-cpp ${SOURCE_FILES})
 target_link_libraries( asdf-cpp yaml-cpp )
 
 set_target_properties(asdf-cpp PROPERTIES
-  COMPILE_FLAGS "${asdf_c_flags} ${asdf_c_flags}"
+  COMPILE_FLAGS "${asdf_c_flags} ${asdf_cxx_flags}"
 )
 
 enable_testing()
