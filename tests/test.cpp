@@ -1,7 +1,7 @@
 #include <string>
 #include <sstream>
 
-#include <asdf.hpp>
+#include <asdf-cpp/asdf.hpp>
 
 #include "gtest/gtest.h"
 

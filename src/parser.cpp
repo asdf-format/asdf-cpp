@@ -1,6 +1,6 @@
 #include <yaml-cpp/yaml.h>
-#include <private/parser.hpp>
-#include <private/nodebuilder.hpp>
+#include <asdf-cpp/private/parser.hpp>
+#include <asdf-cpp/private/nodebuilder.hpp>
 
 namespace Asdf {
 
