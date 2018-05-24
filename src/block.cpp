@@ -1,6 +1,12 @@
 #include <string>
 #include <cstdint>
 #include <cstring>
+#include <cerrno>
+#ifdef __APPLE__
+#include <mach/error.h>
+#else
+#include <error.h>
+#endif
 
 #include <asdf-cpp/block.hpp>
 #include <asdf-cpp/compression.hpp>
@@ -8,6 +14,24 @@
 
 static const uint8_t no_compression[] = { 0, 0, 0, 0 };
 
+
+static void * process_compressed_data(
+        const uint8_t *data,
+        size_t input_size,
+        size_t output_size,
+        CompressionType compression)
+{
+        /* Allocate enough memory to contain the uncompressed data */
+        uint8_t *output = (uint8_t *) malloc(output_size);
+        if (output == nullptr)
+        {
+            std::string msg = "Unable to allocate memory for uncompressed data";
+            throw std::runtime_error(msg + strerror(errno));
+        }
+
+        decompress_block(output, output_size, data, input_size, compression);
+        return (void *) output;
+}
 
 void * process_block_data(const uint8_t *block_data)
 {
@@ -21,15 +45,7 @@ void * process_block_data(const uint8_t *block_data)
     if (memcmp(header->compression, "zlib", comp_field_size) == 0)
     {
 #ifdef HAS_ZLIB
-        /* Allocate enough memory to contain the uncompressed data */
-        uint8_t *output = (uint8_t *) malloc(data_size);
-        decompress_block(
-            output,
-            data_size,
-            data,
-            used_size,
-            CompressionType::gzip);
-        return (void *) output;
+        return process_compressed_data(data, used_size, data_size, CompressionType::gzip);
 #else
         std::string msg("Can't read zlib block: zlib is not installed");
         throw std::runtime_error(msg);
