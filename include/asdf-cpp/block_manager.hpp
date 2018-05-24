@@ -60,7 +60,7 @@ class Block : public GenericBlock {
 
             header.set_header_size(header_size);
 
-            /* TODO: set compression value */
+            header.set_compression(compression);
 
             /* For now these are all the same */
             header.set_allocated_size(storage_size);

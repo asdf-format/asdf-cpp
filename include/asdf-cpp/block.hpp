@@ -9,6 +9,9 @@
 
 
 const uint8_t asdf_block_magic[] = {0xd3, 'B', 'L', 'K'};
+const uint8_t zlib_compression[] = {'z', 'l', 'i', 'b'};
+const uint8_t bzp2_compression[] = {'b', 'z', 'p', '2'};
+const uint8_t no_compression[] = { 0, 0, 0, 0 };
 
 
 #pragma pack(push, 1)
@@ -76,6 +79,22 @@ typedef struct block_header
     void set_data_size(uint64_t size)
     {
         unpack_u64be(data_size, size);
+    }
+
+    void set_compression(CompressionType ct)
+    {
+        switch (ct)
+        {
+            case zlib:
+                memcpy(compression, zlib_compression, sizeof(compression));
+                break;
+            case bzip2:
+                memcpy(compression, bzp2_compression, sizeof(compression));
+                break;
+            default:
+                memcpy(compression, no_compression, sizeof(compression));
+                break;
+        }
     }
 
     /* Returns the value of the header size field */

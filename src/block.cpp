@@ -12,8 +12,6 @@
 #include <asdf-cpp/compression.hpp>
 #include <asdf-cpp/private/compression.hpp>
 
-static const uint8_t no_compression[] = { 0, 0, 0, 0 };
-
 
 static void * process_compressed_data(
         const uint8_t *data,
