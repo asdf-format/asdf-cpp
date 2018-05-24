@@ -41,6 +41,8 @@ set_target_properties(asdf-cpp PROPERTIES
 
 if (${ZLIB_FOUND})
     target_compile_definitions(asdf-cpp PRIVATE HAS_ZLIB=1)
+    target_include_directories(asdf-cpp PRIVATE ${ZLIB_INCLUDE_DIRS})
+    target_link_libraries(asdf-cpp ${ZLIB_LIBRARIES})
 endif()
 
 if (${BZIP2_FOUND})
