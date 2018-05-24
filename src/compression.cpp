@@ -6,8 +6,14 @@
 
 
 #ifdef HAS_ZLIB
+#include <zlib.h>
+
 static int gzip_compress(void);
-static int gzip_decompress(void);
+static int gzip_decompress(
+    uint8_t *output,
+    size_t output_size,
+    const uint8_t *input,
+    size_t input_size);
 #endif
 
 #ifdef HAS_BZIP2
@@ -16,11 +22,20 @@ static int bzip2_decompress(void);
 #endif
 
 
+#define CHECK_ZLIB_ERR(err, msg) {                  \
+    if (err != Z_OK)                                \
+    {                                               \
+        std::string output = "zlib error: ";        \
+        throw std::runtime_error(output + msg);     \
+    }                                               \
+}
+
+
 int compress_block(
         uint8_t *output,
+        size_t *output_size,
         const uint8_t *input,
         size_t input_size,
-        size_t *output_size,
         CompressionType compression)
 {
     std::string msg;
@@ -54,9 +69,9 @@ int compress_block(
 
 int decompress_block(
         uint8_t *output,
+        size_t output_size,
         const uint8_t *input,
         size_t input_size,
-        size_t *output_size,
         CompressionType compression)
 {
     std::string msg;
@@ -65,7 +80,7 @@ int decompress_block(
     {
         case gzip:
 #if HAS_ZLIB
-            return gzip_decompress();
+            return gzip_decompress(output, output_size, input, input_size);
 #else
             msg = "Can't decompress block: gzip library is not installed";
             throw std::runtime_error(msg);
@@ -92,12 +107,36 @@ int decompress_block(
 #ifdef HAS_ZLIB
 static int gzip_compress(void)
 {
-
     return 0;
 }
 
-static int gzip_decompress(void)
+static int gzip_decompress(
+        uint8_t *output,
+        size_t output_size,
+        const uint8_t *input,
+        size_t input_size)
 {
+    int err;
+    z_stream stream;
+
+    stream.zalloc = Z_NULL;
+    stream.zfree = Z_NULL;
+    stream.next_in = (Bytef *) input;
+    stream.avail_in = input_size;
+    stream.next_out = (Bytef *) output;
+    stream.avail_out = output_size;
+
+    err = inflateInit(&stream);
+    CHECK_ZLIB_ERR(err, "inflateInit");
+
+    err = inflate(&stream, Z_NO_FLUSH);
+    if (err != Z_STREAM_END)
+    {
+        CHECK_ZLIB_ERR(err, "inflate");
+    }
+
+    err = inflateEnd(&stream);
+    CHECK_ZLIB_ERR(err, "inflateEnd");
 
     return 0;
 }
