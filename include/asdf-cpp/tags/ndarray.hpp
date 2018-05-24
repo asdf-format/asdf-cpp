@@ -52,8 +52,9 @@ class NDArray
 
         std::shared_ptr<T> read(void)
         {
-            return reinterpret_cast<std::shared_ptr<T>>(
-                    process_block(file->get_block(source)));
+            T *ptr = static_cast<T *>(process_block_data(
+                        (const uint8_t *) file->get_block(source)));
+            return std::shared_ptr<T>(ptr);
         }
 
     protected:
@@ -103,9 +104,6 @@ class NDArray
             auto size = accumulate(begin(shape), end(shape), 1, multiplies<size_t>());
             return file->register_array_block<T>(data, size);
         }
-
-        void write(AsdfFile &file);
-        std::shared_ptr<void> process_block(const void *block_data);
 
         friend std::ostream&
         operator<<(std::ostream &strm, const NDArray<T> &array)

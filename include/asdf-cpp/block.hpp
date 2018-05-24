@@ -110,3 +110,6 @@ const size_t header_size = sizeof(block_header_t) -
      sizeof(((block_header_t *) 0)->header_size));
 
 static_assert(sizeof(block_header_t) == 0x36, "Invalid block header size");
+
+
+void *process_block_data(const uint8_t *block_data);
