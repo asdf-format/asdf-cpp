@@ -155,13 +155,9 @@ static int zlib_compress(
 
     while (c_stream.total_in < input_size)
     {
-        std::cout << c_stream.total_in << std::endl;
-        std::cout << input_size << std::endl;
-
         ret = deflate(&c_stream, Z_NO_FLUSH);
         if (ret != Z_OK)
         {
-            std::cout << "not okay" << std::endl;
             free(outbuf);
             CHECK_ZLIB_ERR(ret, "deflate");
         }
@@ -180,7 +176,6 @@ static int zlib_compress(
     ret = deflate(&c_stream, Z_FINISH);
     if (ret == Z_STREAM_END)
     {
-        std::cout << "stream end" << std::endl;
         size_t new_bytes_written = c_stream.total_out - compressed_size;
         ostream.write((const char *) outbuf, new_bytes_written);
         compressed_size += new_bytes_written;
