@@ -9,6 +9,7 @@
 #include <cstdint>
 
 #include "node.hpp"
+#include "compression.hpp"
 #include "block_manager.hpp"
 
 namespace Asdf {
@@ -37,9 +38,10 @@ class AsdfFile
         BlockManager block_manager;
 
         template <typename T> friend class NDArray;
-        template <typename T> int register_array_block(T *data, size_t size)
+        template <typename T>
+            int register_array_block(T *data, size_t size, CompressionType compression)
         {
-            return block_manager.add_data_block<T>(data, size);
+            return block_manager.add_data_block<T>(data, size, compression);
         }
 
         void write_blocks(std::ostream &ostream) const;

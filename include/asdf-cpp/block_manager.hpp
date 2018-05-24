@@ -6,6 +6,7 @@
 #include <iostream>
 
 #include "block.hpp"
+#include "compression.hpp"
 
 
 namespace Asdf {
@@ -25,10 +26,11 @@ template <typename T>
 class Block : public GenericBlock {
 
     public:
-        Block(T *buff, size_t length) : GenericBlock()
+        Block(T *buff, size_t length, CompressionType compression) : GenericBlock()
         {
             this->buff = buff;
             this->length = length;
+            this->compression = compression;
         }
 
     protected:
@@ -59,6 +61,7 @@ class Block : public GenericBlock {
     private:
         T *buff = nullptr;
         size_t length = 0;
+        CompressionType compression = CompressionType::none;
 };
 
 class BlockManager {
@@ -77,10 +80,11 @@ class BlockManager {
             return blocks.size();
         }
 
-        template <typename T> int add_data_block(T *data, size_t length)
+        template <typename T> int
+            add_data_block(T *data, size_t length, CompressionType compression)
         {
             int source_idx = blocks.size();
-            auto block = new Block<T>(data, length);
+            auto block = new Block<T>(data, length, compression);
             blocks.push_back(std::shared_ptr<GenericBlock>(dynamic_cast<GenericBlock*>(block)));
             return source_idx;
         }

@@ -106,7 +106,7 @@ class NDArray
             using std::end;
 
             auto size = accumulate(begin(shape), end(shape), 1, multiplies<size_t>());
-            return file->register_array_block<T>(data, size);
+            return file->register_array_block<T>(data, size, compression);
         }
 
         friend std::ostream&
