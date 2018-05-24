@@ -72,3 +72,13 @@ void * process_block_data(const uint8_t *block_data)
 
     return (void *) data_copy;
 }
+
+void *create_compressed_block(
+        size_t *compressed_size,
+        const uint8_t *raw_data,
+        size_t data_size,
+        CompressionType compression)
+{
+
+    return nullptr;
+}

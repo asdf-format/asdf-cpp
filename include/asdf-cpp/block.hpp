@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <cstring>
 
+#include "compression.hpp"
+
 
 const uint8_t asdf_block_magic[] = {0xd3, 'B', 'L', 'K'};
 
@@ -113,3 +115,8 @@ static_assert(sizeof(block_header_t) == 0x36, "Invalid block header size");
 
 
 void *process_block_data(const uint8_t *block_data);
+void *create_compressed_block(
+        size_t *compressed_size,
+        const uint8_t *raw_data,
+        size_t data_size,
+        CompressionType compression);

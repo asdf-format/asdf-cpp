@@ -19,7 +19,10 @@ class GenericBlock {
         friend class BlockManager;
 
         virtual void write(std::ostream &ostream) const = 0;
-        virtual void write_header(std::ostream &ostream) const = 0;
+        virtual void write_header(
+                std::ostream &ostream,
+                size_t data_size,
+                size_t actual_size) const = 0;
 };
 
 template <typename T>
@@ -38,24 +41,49 @@ class Block : public GenericBlock {
 
         void write(std::ostream &ostream) const
         {
-            write_header(ostream);
-            ostream.write((char *) buff, sizeof(T) * length);
+            if (compression == CompressionType::none)
+            {
+                size_t data_size = sizeof(T) * length;
+
+                write_header(ostream, data_size, data_size);
+                ostream.write((char *) buff, data_size);
+            }
+            else
+            {
+                write_compressed_data(ostream);
+            }
         }
 
-        void write_header(std::ostream &ostream) const
+        void write_header(std::ostream &ostream, size_t data_size, size_t storage_size) const
         {
             block_header_t header = {};
 
-            size_t data_size = sizeof(T) * length;
-
             header.set_header_size(header_size);
 
+            /* TODO: set compression value */
+
             /* For now these are all the same */
-            header.set_allocated_size(data_size);
-            header.set_used_size(data_size);
+            header.set_allocated_size(storage_size);
+            header.set_used_size(storage_size);
             header.set_data_size(data_size);
 
             ostream.write((char *) &header, sizeof(header));
+        }
+
+        void write_compressed_data(std::ostream &ostream) const
+        {
+            size_t input_size = sizeof(T) * length;
+            size_t output_size = 0;
+
+            void *compressed = create_compressed_block(
+                                        &output_size,
+                                        (const uint8_t *) this->buff,
+                                        input_size,
+                                        compression);
+
+            /* Once the compressed size is known, write the header */
+            write_header(ostream, input_size, output_size);
+            ostream.write((char *) compressed, output_size);
         }
 
     private:
