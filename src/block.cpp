@@ -45,7 +45,7 @@ void * process_block_data(const uint8_t *block_data)
     if (memcmp(header->compression, "zlib", comp_field_size) == 0)
     {
 #ifdef HAS_ZLIB
-        return process_compressed_data(data, used_size, data_size, CompressionType::gzip);
+        return process_compressed_data(data, used_size, data_size, CompressionType::zlib);
 #else
         std::string msg("Can't read zlib block: zlib is not installed");
         throw std::runtime_error(msg);

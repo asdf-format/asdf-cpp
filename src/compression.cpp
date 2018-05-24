@@ -8,8 +8,8 @@
 #ifdef HAS_ZLIB
 #include <zlib.h>
 
-static int gzip_compress(void);
-static int gzip_decompress(
+static int zlib_compress(void);
+static int zlib_decompress(
     uint8_t *output,
     size_t output_size,
     const uint8_t *input,
@@ -42,11 +42,11 @@ int compress_block(
 
     switch (compression)
     {
-        case gzip:
+        case zlib:
 #if HAS_ZLIB
-            return gzip_compress();
+            return zlib_compress();
 #else
-            msg = "Can't compress block: gzip library is not installed";
+            msg = "Can't compress block: zlib library is not installed";
             throw std::runtime_error(msg);
 #endif
             break;
@@ -78,11 +78,11 @@ int decompress_block(
 
     switch (compression)
     {
-        case gzip:
+        case zlib:
 #if HAS_ZLIB
-            return gzip_decompress(output, output_size, input, input_size);
+            return zlib_decompress(output, output_size, input, input_size);
 #else
-            msg = "Can't decompress block: gzip library is not installed";
+            msg = "Can't decompress block: zlib library is not installed";
             throw std::runtime_error(msg);
 #endif
             break;
@@ -105,12 +105,12 @@ int decompress_block(
 }
 
 #ifdef HAS_ZLIB
-static int gzip_compress(void)
+static int zlib_compress(void)
 {
     return 0;
 }
 
-static int gzip_decompress(
+static int zlib_decompress(
         uint8_t *output,
         size_t output_size,
         const uint8_t *input,

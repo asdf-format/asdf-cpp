@@ -2,7 +2,7 @@
 
 typedef enum _CompressionType
 {
-    gzip = 0,
+    zlib = 0,
     bzip2,
     none,
 } CompressionType;
