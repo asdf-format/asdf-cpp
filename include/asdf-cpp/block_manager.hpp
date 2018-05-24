@@ -72,18 +72,30 @@ class Block : public GenericBlock {
 
         void write_compressed_data(std::ostream &ostream) const
         {
-            size_t input_size = sizeof(T) * length;
+            const size_t input_size = sizeof(T) * length;
             size_t output_size = 0;
 
-            void *compressed = create_compressed_block(
-                                        &output_size,
-                                        (const uint8_t *) this->buff,
-                                        input_size,
-                                        compression);
+            const size_t header_start_pos = ostream.tellp();
 
-            /* Once the compressed size is known, write the header */
+            /*
+             * We don't currently know the compressed data size, but write the
+             * header anyway as a placeholder.
+             */
+            write_header(ostream, input_size, 0);
+
+            write_compressed_block(
+                    ostream,
+                    &output_size,
+                    (const uint8_t *) this->buff,
+                    input_size,
+                    compression);
+
+            const size_t end_block_pos = ostream.tellp();
+
+            /* Now that the compressed size is known, rewrite the header */
+            ostream.seekp(header_start_pos);
             write_header(ostream, input_size, output_size);
-            ostream.write((char *) compressed, output_size);
+            ostream.seekp(end_block_pos);
         }
 
     private:

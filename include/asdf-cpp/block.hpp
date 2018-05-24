@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <assert.h>
 #include <cstdint>
 #include <cstring>
@@ -115,7 +116,8 @@ static_assert(sizeof(block_header_t) == 0x36, "Invalid block header size");
 
 
 void *process_block_data(const uint8_t *block_data);
-void *create_compressed_block(
+void write_compressed_block(
+        std::ostream &stream,
         size_t *compressed_size,
         const uint8_t *raw_data,
         size_t data_size,

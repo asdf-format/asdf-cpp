@@ -73,12 +73,12 @@ void * process_block_data(const uint8_t *block_data)
     return (void *) data_copy;
 }
 
-void *create_compressed_block(
+void write_compressed_block(
+        std::ostream &stream,
         size_t *compressed_size,
         const uint8_t *raw_data,
         size_t data_size,
         CompressionType compression)
 {
-
-    return nullptr;
+    compress_and_write_block(stream, compressed_size, raw_data, data_size, compression); 
 }

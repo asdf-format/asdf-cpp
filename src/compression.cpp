@@ -4,11 +4,22 @@
 #include <asdf-cpp/compression.hpp>
 #include <asdf-cpp/private/compression.hpp>
 
+/*
+ * This is fairly arbitrary right now and eventually could be configured to
+ * balance performance and memory usage.
+ */
+#define OUTPUT_BUFF_SIZE    (1ul << 16)
+
 
 #ifdef HAS_ZLIB
 #include <zlib.h>
 
-static int zlib_compress(void);
+static int zlib_compress(
+    std::ostream &stream,
+    size_t *output_size,
+    const uint8_t *input,
+    size_t input_size);
+
 static int zlib_decompress(
     uint8_t *output,
     size_t output_size,
@@ -31,8 +42,8 @@ static int bzip2_decompress(void);
 }
 
 
-int compress_block(
-        uint8_t *output,
+int compress_and_write_block(
+        std::ostream &stream,
         size_t *output_size,
         const uint8_t *input,
         size_t input_size,
@@ -44,7 +55,7 @@ int compress_block(
     {
         case zlib:
 #if HAS_ZLIB
-            return zlib_compress();
+            return zlib_compress(stream, output_size, input, input_size);
 #else
             msg = "Can't compress block: zlib library is not installed";
             throw std::runtime_error(msg);
@@ -105,8 +116,86 @@ int decompress_block(
 }
 
 #ifdef HAS_ZLIB
-static int zlib_compress(void)
+static int zlib_compress(
+    std::ostream &ostream,
+    size_t *output_size,
+    const uint8_t *input,
+    size_t input_size)
 {
+    int ret;
+    z_stream c_stream;
+
+    /* Allocate temporary buffer for compressed data output */
+    /*
+     * TODO: consider using deflateBound to get an upper bound on this and just
+     * allocate it a single time and free.
+     */
+    Bytef *outbuf = (Bytef *) malloc(OUTPUT_BUFF_SIZE);
+    if (outbuf == nullptr)
+    {
+        std::string msg = "Failed to allocate temporary buffer for compressed output: ";
+        throw std::runtime_error(msg + strerror(errno));
+    }
+
+    c_stream.zalloc = Z_NULL;
+    c_stream.zfree = Z_NULL;
+    c_stream.next_in = (Bytef *) input;
+    c_stream.avail_in = input_size;
+    c_stream.next_out = outbuf;
+    c_stream.avail_out = OUTPUT_BUFF_SIZE;
+
+    ret = deflateInit(&c_stream, Z_DEFAULT_COMPRESSION);
+    if (ret != Z_OK)
+    {
+        free(outbuf);
+        throw std::runtime_error("zlib error: deflateInit");
+    }
+
+    size_t compressed_size = 0;
+
+    while (c_stream.total_in < input_size)
+    {
+        std::cout << c_stream.total_in << std::endl;
+        std::cout << input_size << std::endl;
+
+        ret = deflate(&c_stream, Z_NO_FLUSH);
+        if (ret != Z_OK)
+        {
+            std::cout << "not okay" << std::endl;
+            free(outbuf);
+            CHECK_ZLIB_ERR(ret, "deflate");
+        }
+
+        if (c_stream.avail_out == 0)
+        {
+            std::cout << "got here" << std::endl;
+            ostream.write((const char *) outbuf, OUTPUT_BUFF_SIZE);
+            /* Reset to the beginning of the temporary buffer */
+            c_stream.next_out = outbuf;
+            c_stream.avail_out = OUTPUT_BUFF_SIZE;
+            compressed_size += OUTPUT_BUFF_SIZE;
+        }
+    }
+
+    ret = deflate(&c_stream, Z_FINISH);
+    if (ret == Z_STREAM_END)
+    {
+        std::cout << "stream end" << std::endl;
+        size_t new_bytes_written = c_stream.total_out - compressed_size;
+        ostream.write((const char *) outbuf, new_bytes_written);
+        compressed_size += new_bytes_written;
+    }
+
+    ret = deflateEnd(&c_stream);
+    if (ret != Z_OK)
+    {
+        free(outbuf);
+        throw std::runtime_error("zlib error: deflateEnd");
+    }
+
+    free(outbuf);
+    *output_size = compressed_size;
+
     return 0;
 }
 
