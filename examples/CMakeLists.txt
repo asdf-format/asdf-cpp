@@ -18,3 +18,8 @@ set_target_properties(read-compressed PROPERTIES
   COMPILE_FLAGS "${yaml_c_flags} ${yaml_cxx_flags} ${asdf_test_flags}"
 )
 
+add_executable(write-compressed write-compressed.cpp)
+target_link_libraries(write-compressed asdf-cpp)
+set_target_properties(write-compressed PROPERTIES
+  COMPILE_FLAGS "${yaml_c_flags} ${yaml_cxx_flags} ${asdf_test_flags}"
+)
