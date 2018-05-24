@@ -21,17 +21,20 @@ template <typename T>
 class NDArray
 {
     public:
-        NDArray(T *data, std::vector<size_t> shape)
+        NDArray(T *data, std::vector<size_t> shape,
+                CompressionType compression = CompressionType::none)
         {
             this->data = data;
             this->byteorder = "little";
             this->shape = shape;
             this->datatype = dtype_to_string<T>();
+            this->compression = compression;
         }
 
         /* Simple constructor for a 1D array */
-        NDArray(T *data, size_t shape) :
-            NDArray(data, std::vector<size_t> { shape }) {}
+        NDArray(T *data, size_t shape,
+                CompressionType compression = CompressionType::none) :
+            NDArray(data, std::vector<size_t> { shape }, compression) {}
 
         int get_source() const
         {
@@ -66,6 +69,7 @@ class NDArray
         std::string datatype;
         std::string byteorder;
         std::vector<size_t> shape;
+        CompressionType compression = CompressionType::none;
         const AsdfFile *file;
 
         NDArray() { file = nullptr; }
