@@ -25,6 +25,11 @@ int main(int argc, char **argv)
     }
 
     tree["zlib_data"] = Asdf::NDArray<int>(nums, array_size, CompressionType::zlib);
+    /*
+     * For now this will simply make a copy of the data, so no need to create a
+     * new array for testing purposes.
+     */
+    tree["bzp2_data"] = Asdf::NDArray<int>(nums, array_size, CompressionType::bzip2);
 
     std::ofstream outfile(argv[1]);
     outfile << asdf;
