@@ -1,4 +1,5 @@
 #include <string>
+#include <cstdint>
 #include <stdexcept>
 
 #include <asdf-cpp/compression.hpp>
@@ -9,6 +10,7 @@
  * balance performance and memory usage.
  */
 #define OUTPUT_BUFF_SIZE    (1ul << 16)
+#define PACK_U64(HI, LO)    (((uint64_t) HI << 32) | LO)
 
 
 #ifdef HAS_ZLIB
@@ -30,7 +32,12 @@ static int zlib_decompress(
 #ifdef HAS_BZIP2
 #include <bzlib.h>
 
-static int bzip2_compress(void);
+static int bzip2_compress(
+    std::ostream &stream,
+    size_t *output_size,
+    const uint8_t *input,
+    size_t input_size);
+
 static int bzip2_decompress(
     uint8_t *output,
     size_t output_size,
@@ -77,7 +84,7 @@ int compress_and_write_block(
 
         case bzip2:
 #if HAS_BZIP2
-            return bzip2_compress();
+            return bzip2_compress(stream, output_size, input, input_size);
 #else
             msg = "Can't compress block: bzip2 library is not installed";
             throw std::runtime_error(msg);
@@ -248,8 +255,81 @@ static int zlib_decompress(
 #endif
 
 #ifdef HAS_BZIP2
-static int bzip2_compress(void)
+static int bzip2_compress(
+    std::ostream &ostream,
+    size_t *output_size,
+    const uint8_t *input,
+    size_t input_size)
 {
+    int ret;
+    bz_stream c_stream;
+
+    /* Allocate temporary buffer for compressed data output */
+    char *outbuf = (char *) malloc(OUTPUT_BUFF_SIZE);
+    if (outbuf == nullptr)
+    {
+        std::string msg = "Failed to allocate temporary buffer for compressed output: ";
+        throw std::runtime_error(msg + strerror(errno));
+    }
+
+    c_stream.bzalloc = nullptr;
+    c_stream.bzfree = nullptr;
+    c_stream.next_in = (char *) input;
+    c_stream.avail_in = input_size;
+    c_stream.next_out = outbuf;
+    c_stream.avail_out = OUTPUT_BUFF_SIZE;
+
+    ret = BZ2_bzCompressInit(&c_stream, 5, 0, 0);
+    if (ret != BZ_OK)
+    {
+        free(outbuf);
+        throw std::runtime_error("bzip2 error: deflateInit");
+    }
+
+    size_t compressed_size = 0;
+    size_t total_in = PACK_U64(c_stream.total_in_hi32, c_stream.total_in_lo32);
+
+    /* Process all of the input */
+    while (total_in < input_size)
+    {
+        ret = BZ2_bzCompress(&c_stream, BZ_RUN);
+        total_in = PACK_U64(c_stream.total_in_hi32, c_stream.total_in_lo32);
+        if (ret != BZ_RUN_OK)
+        {
+            free(outbuf);
+            CHECK_BZIP_ERR(ret, "compress");
+        }
+
+        if (c_stream.avail_out == 0)
+        {
+            ostream.write((const char *) outbuf, OUTPUT_BUFF_SIZE);
+            /* Reset to the beginning of the temporary buffer */
+            c_stream.next_out = outbuf;
+            c_stream.avail_out = OUTPUT_BUFF_SIZE;
+            compressed_size += OUTPUT_BUFF_SIZE;
+        }
+    }
+
+    /* Finish producing the output */
+    for (;;)
+    {
+        if (c_stream.avail_out == 0 || ret == BZ_STREAM_END)
+        {
+            size_t total_out = PACK_U64(c_stream.total_out_hi32, c_stream.total_out_lo32);
+            size_t new_bytes_written = total_out - compressed_size;
+
+            ostream.write((const char *) outbuf, new_bytes_written);
+            c_stream.next_out = outbuf;
+            c_stream.avail_out = OUTPUT_BUFF_SIZE;
+            compressed_size += new_bytes_written;
+        }
+
+        if (ret == BZ_STREAM_END) break;
+        ret = BZ2_bzCompress(&c_stream, BZ_FINISH);
+    }
+
+    free(outbuf);
+    *output_size = compressed_size;
 
     return 0;
 }
