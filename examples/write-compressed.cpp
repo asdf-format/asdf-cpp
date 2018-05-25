@@ -24,7 +24,7 @@ int main(int argc, char **argv)
         nums[i] = i;
     }
 
-    tree["data"] = Asdf::NDArray<int>(nums, array_size, CompressionType::zlib);
+    tree["zlib_data"] = Asdf::NDArray<int>(nums, array_size, CompressionType::zlib);
 
     std::ofstream outfile(argv[1]);
     outfile << asdf;
