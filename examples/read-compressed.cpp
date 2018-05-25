@@ -7,6 +7,14 @@
 
 using namespace Asdf;
 
+static void verify(int *data, size_t num)
+{
+    for (size_t i = 0; i < num; i++)
+    {
+        assert(data[i] == i);
+    }
+}
+
 int main(int argc, char **argv)
 {
     if (argc != 2)
@@ -18,11 +26,13 @@ int main(int argc, char **argv)
     Asdf::AsdfFile asdf(argv[1]);
     Asdf::Node tree = asdf.get_tree();
 
-    auto data_array = tree["zlib_data"].as<NDArray<int>>();
-    auto data = data_array.read().get();
+    /* Read array that is known to be compressed with zlib */
+    auto zlib_array = tree["zlib_data"].as<NDArray<int>>();
+    auto zlib_data = zlib_array.read().get();
+    verify(zlib_data, zlib_array.get_shape()[0]);
 
-    for (size_t i = 0; i < data_array.get_shape()[0]; i++)
-    {
-        assert(data[i] == i);
-    }
+    /* Read array that is known to be compressed with bzp2 */
+    auto bzp2_array = tree["bzp2_data"].as<NDArray<int>>();
+    auto bzp2_data = bzp2_array.read().get();
+    verify(bzp2_data, bzp2_array.get_shape()[0]);
 }
