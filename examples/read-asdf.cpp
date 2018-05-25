@@ -26,6 +26,10 @@ int main(int argc, char **argv)
     auto array = tree["array"].as<Asdf::NDArray<int>>();
     std::cout << array << std::endl;
 
+    /* Demonstrate API for getting NDArray compression type */
+    assert(array.get_compression_type() == none);
+    assert(array.is_compressed() == false);
+
     int *ddata = array.get_raw_data();
     for (int i = 0; i < 10; i++)
     {
