@@ -1,13 +1,11 @@
 # Build "scripts" that are useful for developers for testing
 
-add_executable(read-asdf read-asdf.cpp)
-target_link_libraries(read-asdf asdf-cpp)
-set_target_properties(read-asdf PROPERTIES
-  COMPILE_FLAGS "${yaml_c_flags} ${yaml_cxx_flags} ${asdf_test_flags}"
-)
+set(programs read-asdf write-asdf read-compressed write-compressed)
 
-add_executable(write-asdf write-asdf.cpp)
-target_link_libraries(write-asdf asdf-cpp)
-set_target_properties(write-asdf PROPERTIES
-  COMPILE_FLAGS "${yaml_c_flags} ${yaml_cxx_flags} ${asdf_test_flags}"
-)
+foreach(name ${programs})
+    add_executable(${name} "${name}.cpp")
+    target_link_libraries(${name} asdf-cpp)
+    set_target_properties(${name} PROPERTIES
+      COMPILE_FLAGS "${yaml_c_flags} ${yaml_cxx_flags} ${asdf_test_flags}"
+    )
+endforeach(name)

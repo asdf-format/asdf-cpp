@@ -7,6 +7,8 @@
 #include <yaml-cpp/yaml.h>
 
 #include "../datatypes.hpp"
+#include "../compression.hpp"
+#include "../block.hpp"
 
 #define NDARRAY_TAG_BASE    "tag:stsci.edu:asdf/core/ndarray"
 #define NDARRAY_TAG_VERSION "1.0.0"
@@ -19,17 +21,26 @@ template <typename T>
 class NDArray
 {
     public:
-        NDArray(T *data, std::vector<size_t> shape)
+        NDArray(T *data, std::vector<size_t> shape,
+                CompressionType compression = CompressionType::none)
         {
+            if (compression == unknown)
+            {
+                std::string msg("'unknown' is not a valid option for array compression");
+                throw std::runtime_error(msg);
+            }
+
             this->data = data;
             this->byteorder = "little";
             this->shape = shape;
             this->datatype = dtype_to_string<T>();
+            this->compression = compression;
         }
 
         /* Simple constructor for a 1D array */
-        NDArray(T *data, size_t shape) :
-            NDArray(data, std::vector<size_t> { shape }) {}
+        NDArray(T *data, size_t shape,
+                CompressionType compression = CompressionType::none) :
+            NDArray(data, std::vector<size_t> { shape }, compression) {}
 
         int get_source() const
         {
@@ -41,9 +52,36 @@ class NDArray
             return shape;
         }
 
-        T * read(void)
+        T * get_raw_data(void)
         {
-            return (T *) file->get_block(source);
+            const uint8_t *block_data = (const uint8_t *) file->get_block(source);
+            const block_header_t *header = (const block_header_t *) block_data;
+            return  (T *)(block_data + header->total_header_size());
+        }
+
+        CompressionType get_compression_type(void) const
+        {
+            const uint8_t *block_data = (const uint8_t *) file->get_block(source);
+            const block_header_t *header = (const block_header_t *) block_data;
+            CompressionType ct = header->get_compression();
+            if (ct == unknown)
+            {
+                throw std::runtime_error("Unknown compression type detected");
+            }
+
+            return ct;
+        }
+
+        bool is_compressed(void) const
+        {
+            return get_compression_type() != CompressionType::none;
+        }
+
+        std::shared_ptr<T> read(void)
+        {
+            T *ptr = static_cast<T *>(process_block_data(
+                        (const uint8_t *) file->get_block(source)));
+            return std::shared_ptr<T>(ptr);
         }
 
     protected:
@@ -55,6 +93,7 @@ class NDArray
         std::string datatype;
         std::string byteorder;
         std::vector<size_t> shape;
+        CompressionType compression = CompressionType::none;
         const AsdfFile *file;
 
         NDArray() { file = nullptr; }
@@ -91,10 +130,8 @@ class NDArray
             using std::end;
 
             auto size = accumulate(begin(shape), end(shape), 1, multiplies<size_t>());
-            return file->register_array_block<T>(data, size);
+            return file->register_array_block<T>(data, size, compression);
         }
-
-        void write(AsdfFile &file);
 
         friend std::ostream&
         operator<<(std::ostream &strm, const NDArray<T> &array)
@@ -107,6 +144,8 @@ class NDArray
 
             strm << "], datatype=" << array.datatype;
             strm << ", source=" << array.source;
+            strm << ", compression=" << CompressionType_to_string(array.get_compression_type());
+
             return strm;
         }
 

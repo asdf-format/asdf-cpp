@@ -26,7 +26,11 @@ int main(int argc, char **argv)
     auto array = tree["array"].as<Asdf::NDArray<int>>();
     std::cout << array << std::endl;
 
-    int *ddata = array.read();
+    /* Demonstrate API for getting NDArray compression type */
+    assert(array.get_compression_type() == none);
+    assert(array.is_compressed() == false);
+
+    int *ddata = array.get_raw_data();
     for (int i = 0; i < 10; i++)
     {
         assert(ddata[i] == i);
@@ -47,7 +51,7 @@ int main(int argc, char **argv)
      * templates, although all APIs will probably require the application to
      * know something about the array dimensions in advance.
      */
-    int (*ddata_2d)[20] = reinterpret_cast<int (*)[20]>(array_2d.read());
+    int (*ddata_2d)[20] = reinterpret_cast<int (*)[20]>(array_2d.get_raw_data());
     for (int i = 0; i < 10; i++)
     {
         for (int j = 0; j < 20; j++)
@@ -59,7 +63,7 @@ int main(int argc, char **argv)
     auto alphabet = tree["alphabet"].as<Asdf::NDArray<char>>();
     std::cout << alphabet << std::endl;
 
-    char *alpha_buff = alphabet.read();
+    char *alpha_buff = alphabet.get_raw_data();
     for (size_t i = 0; i < alphabet.get_shape()[0]; i++)
     {
         assert(alpha_buff[i] == 'a' + (char) i);
@@ -72,7 +76,7 @@ int main(int argc, char **argv)
     std::ranlux48 engine(0);
     std::uniform_real_distribution<double> dist;
 
-    double *rand_buff = random.read();
+    double *rand_buff = random.get_raw_data();
     for (size_t i = 0; i < alphabet.get_shape()[0]; i++)
     {
         assert(rand_buff[i] == dist(engine));
