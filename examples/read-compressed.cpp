@@ -11,7 +11,7 @@ static void verify(int *data, size_t num)
 {
     for (size_t i = 0; i < num; i++)
     {
-        assert(data[i] == i);
+        assert(data[i] == (int) i);
     }
 }
 
