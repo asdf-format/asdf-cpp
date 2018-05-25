@@ -15,6 +15,7 @@
 #include <asdf-cpp/private/compression.hpp>
 
 
+#if defined HAS_ZLIB || defined HAS_BZIP2
 static void * process_compressed_data(
         const uint8_t *data,
         size_t input_size,
@@ -32,19 +33,20 @@ static void * process_compressed_data(
         decompress_block(output, output_size, data, input_size, compression);
         return (void *) output;
 }
+#endif
 
 void * process_block_data(const uint8_t *block_data)
 {
     const block_header_t *header = (const block_header_t *) block_data;
     const uint8_t *data = block_data + header->total_header_size();
     const size_t data_size = header->get_data_size();
-    const size_t used_size = header->get_used_size();
     const size_t comp_field_size = sizeof(header->compression);
 
 
     if (memcmp(header->compression, "zlib", comp_field_size) == 0)
     {
 #ifdef HAS_ZLIB
+        const size_t used_size = header->get_used_size();
         return process_compressed_data(data, used_size, data_size, CompressionType::zlib);
 #else
         std::string msg("Can't read zlib block: zlib is not installed");
@@ -54,6 +56,7 @@ void * process_block_data(const uint8_t *block_data)
     else if (memcmp(header->compression, "bzp2", comp_field_size) == 0)
     {
 #ifdef HAS_BZIP2
+        const size_t used_size = header->get_used_size();
         return process_compressed_data(data, used_size, data_size, CompressionType::bzip2);
 #else
         std::string msg("Can't read bzp2 block: bzip is not installed");
