@@ -24,6 +24,12 @@ class NDArray
         NDArray(T *data, std::vector<size_t> shape,
                 CompressionType compression = CompressionType::none)
         {
+            if (compression == unknown)
+            {
+                std::string msg("'unknown' is not a valid option for array compression");
+                throw std::runtime_error(msg);
+            }
+
             this->data = data;
             this->byteorder = "little";
             this->shape = shape;
@@ -51,6 +57,24 @@ class NDArray
             const uint8_t *block_data = (const uint8_t *) file->get_block(source);
             const block_header_t *header = (const block_header_t *) block_data;
             return  (T *)(block_data + header->total_header_size());
+        }
+
+        CompressionType get_compression_type(void)
+        {
+            const uint8_t *block_data = (const uint8_t *) file->get_block(source);
+            const block_header_t *header = (const block_header_t *) block_data;
+            CompressionType ct = header->get_compression();
+            if (ct == unknown)
+            {
+                throw std::runtime_error("Unknown compression type detected");
+            }
+
+            return ct;
+        }
+
+        bool is_compressed(void)
+        {
+            return get_compression_type() != CompressionType::none;
         }
 
         std::shared_ptr<T> read(void)

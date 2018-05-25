@@ -91,6 +91,10 @@ int compress_and_write_block(
 #endif
             break;
 
+        case unknown:
+            msg = "Can't compress block with unknown compression type";
+            throw std::runtime_error(msg);
+
         default:
             break;
     }
@@ -126,6 +130,10 @@ int decompress_block(
             throw std::runtime_error(msg);
 #endif
             break;
+
+        case unknown:
+            msg = "Can't decompress block with unknown compression type";
+            throw std::runtime_error(msg);
 
         default:
             break;

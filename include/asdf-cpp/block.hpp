@@ -124,6 +124,24 @@ typedef struct block_header
         return pack_u64be(data_size);
     }
 
+    CompressionType get_compression() const
+    {
+        if (memcmp(compression, zlib_compression, sizeof(compression)) == 0)
+        {
+            return zlib;
+        }
+        else if (memcmp(compression, bzp2_compression, sizeof(compression)) == 0)
+        {
+            return bzip2;
+        }
+        else if (memcmp(compression, no_compression, sizeof(compression)) == 0)
+        {
+            return none;
+        }
+
+        return unknown;
+    }
+
 } block_header_t;
 #pragma pack(pop)
 
