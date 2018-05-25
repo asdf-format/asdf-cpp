@@ -1,6 +1,8 @@
 #include <string>
 #include <cstdint>
 #include <cstring>
+#include <stdexcept>
+
 #include <cerrno>
 #ifdef __APPLE__
 #include <mach/error.h>
