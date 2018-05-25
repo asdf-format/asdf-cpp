@@ -59,7 +59,7 @@ class NDArray
             return  (T *)(block_data + header->total_header_size());
         }
 
-        CompressionType get_compression_type(void)
+        CompressionType get_compression_type(void) const
         {
             const uint8_t *block_data = (const uint8_t *) file->get_block(source);
             const block_header_t *header = (const block_header_t *) block_data;
@@ -72,7 +72,7 @@ class NDArray
             return ct;
         }
 
-        bool is_compressed(void)
+        bool is_compressed(void) const
         {
             return get_compression_type() != CompressionType::none;
         }
@@ -144,6 +144,8 @@ class NDArray
 
             strm << "], datatype=" << array.datatype;
             strm << ", source=" << array.source;
+            strm << ", compression=" << CompressionType_to_string(array.get_compression_type());
+
             return strm;
         }
 
