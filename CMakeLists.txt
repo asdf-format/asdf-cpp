@@ -15,6 +15,8 @@ set( BUILD_SHARED_LIBS OFF )
 # The compiler command database can be used by editors for code completion
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+option(YAML_CPP_BUILD_TESTS OFF)
+add_subdirectory(extern/yaml-cpp)
 find_package(yaml-cpp REQUIRED)
 
 # Look for optional compression packages
