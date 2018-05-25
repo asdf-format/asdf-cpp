@@ -3,4 +3,4 @@
 	url = https://github.com/google/googletest
 [submodule "extern/yaml-cpp"]
 	path = extern/yaml-cpp
-	url = git@github.com:drdavella/yaml-cpp
+	url = https://github.com/drdavella/yaml-cpp
