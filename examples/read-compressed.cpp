@@ -28,11 +28,13 @@ int main(int argc, char **argv)
 
     /* Read array that is known to be compressed with zlib */
     auto zlib_array = tree["zlib_data"].as<NDArray<int>>();
+    std::cout << zlib_array << std::endl;
     auto zlib_data = zlib_array.read().get();
     verify(zlib_data, zlib_array.get_shape()[0]);
 
     /* Read array that is known to be compressed with bzp2 */
     auto bzp2_array = tree["bzp2_data"].as<NDArray<int>>();
+    std::cout << bzp2_array << std::endl;
     auto bzp2_data = bzp2_array.read().get();
     verify(bzp2_data, bzp2_array.get_shape()[0]);
 }

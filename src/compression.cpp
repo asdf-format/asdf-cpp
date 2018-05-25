@@ -28,8 +28,14 @@ static int zlib_decompress(
 #endif
 
 #ifdef HAS_BZIP2
+#include <bzlib.h>
+
 static int bzip2_compress(void);
-static int bzip2_decompress(void);
+static int bzip2_decompress(
+    uint8_t *output,
+    size_t output_size,
+    const uint8_t *input,
+    size_t input_size);
 #endif
 
 
@@ -41,6 +47,13 @@ static int bzip2_decompress(void);
     }                                               \
 }
 
+#define CHECK_BZIP_ERR(err, msg) {                  \
+    if (err != BZ_OK)                               \
+    {                                               \
+        std::string output = "bzip error: ";        \
+        throw std::runtime_error(output + msg);     \
+    }                                               \
+}
 
 int compress_and_write_block(
         std::ostream &stream,
@@ -100,7 +113,7 @@ int decompress_block(
 
         case bzip2:
 #if HAS_BZIP2
-            return bzip2_decompress();
+            return bzip2_decompress(output, output_size, input, input_size);
 #else
             msg = "Can't decompress block: bzip2 library is not installed";
             throw std::runtime_error(msg);
@@ -241,8 +254,33 @@ static int bzip2_compress(void)
     return 0;
 }
 
-static int bzip2_decompress(void)
+static int bzip2_decompress(
+        uint8_t *output,
+        size_t output_size,
+        const uint8_t *input,
+        size_t input_size)
 {
+    int ret;
+    bz_stream stream;
+
+    stream.bzalloc = nullptr;
+    stream.bzfree = nullptr;
+    stream.next_in = (char *) input;
+    stream.avail_in = input_size;
+    stream.next_out = (char *) output;
+    stream.avail_out = output_size;
+
+    ret = BZ2_bzDecompressInit(&stream, 0, 0);
+    CHECK_BZIP_ERR(ret, "bzDecompressInit");
+
+    ret = BZ2_bzDecompress(&stream);
+    if (ret != BZ_STREAM_END)
+    {
+        CHECK_BZIP_ERR(ret, "bzDecompress");
+    }
+
+    ret = BZ2_bzDecompressEnd(&stream);
+    CHECK_BZIP_ERR(ret, "bzDecompressEnd");
 
     return 0;
 }

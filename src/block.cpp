@@ -52,7 +52,7 @@ void * process_block_data(const uint8_t *block_data)
     else if (memcmp(header->compression, "bzp2", comp_field_size) == 0)
     {
 #ifdef HAS_BZIP2
-
+        return process_compressed_data(data, used_size, data_size, CompressionType::bzip2);
 #else
         std::string msg("Can't read bzp2 block: bzip is not installed");
         throw std::runtime_error(msg);
