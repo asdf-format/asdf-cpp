@@ -153,6 +153,7 @@ static int zlib_compress(
 
     size_t compressed_size = 0;
 
+    /* Process all of the input */
     while (c_stream.total_in < input_size)
     {
         ret = deflate(&c_stream, Z_NO_FLUSH);
@@ -164,7 +165,6 @@ static int zlib_compress(
 
         if (c_stream.avail_out == 0)
         {
-            std::cout << "got here" << std::endl;
             ostream.write((const char *) outbuf, OUTPUT_BUFF_SIZE);
             /* Reset to the beginning of the temporary buffer */
             c_stream.next_out = outbuf;
@@ -173,12 +173,20 @@ static int zlib_compress(
         }
     }
 
-    ret = deflate(&c_stream, Z_FINISH);
-    if (ret == Z_STREAM_END)
+    /* Finish producing the output */
+    for (;;)
     {
-        size_t new_bytes_written = c_stream.total_out - compressed_size;
-        ostream.write((const char *) outbuf, new_bytes_written);
-        compressed_size += new_bytes_written;
+        if (c_stream.avail_out == 0 || ret == Z_STREAM_END)
+        {
+            size_t new_bytes_written = c_stream.total_out - compressed_size;
+            ostream.write((const char *) outbuf, new_bytes_written);
+            c_stream.next_out = outbuf;
+            c_stream.avail_out = OUTPUT_BUFF_SIZE;
+            compressed_size += new_bytes_written;
+        }
+
+        if (ret == Z_STREAM_END) break;
+        ret = deflate(&c_stream, Z_FINISH);
     }
 
     ret = deflateEnd(&c_stream);
