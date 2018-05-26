@@ -15,13 +15,16 @@ set( BUILD_SHARED_LIBS OFF )
 # The compiler command database can be used by editors for code completion
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(YAML_CPP_BUILD_TESTS OFF)
-add_subdirectory(extern/yaml-cpp)
-# Do not use find_package for yaml-cpp while it is packaged as a submodule.
-# Eventually if the submodule changes are accepted upstream, we can remove it
-# and return to using the standard method for installing and detecting
-# dependencies.
-#find_package(yaml-cpp REQUIRED)
+include(ExternalProject)
+# For now use this fork/branch of yaml-cpp until changes are integrated upstream
+ExternalProject_Add(yaml-cpp-extern
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/yaml-cpp
+    GIT_REPOSITORY https://github.com/drdavella/yaml-cpp
+    GIT_TAG easier-to-inherit
+    CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}"
+)
+
+find_package(yaml-cpp REQUIRED)
 
 # Look for optional compression packages
 find_package(zlib)
