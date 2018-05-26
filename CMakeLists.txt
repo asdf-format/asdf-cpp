@@ -17,7 +17,11 @@ set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(YAML_CPP_BUILD_TESTS OFF)
 add_subdirectory(extern/yaml-cpp)
-find_package(yaml-cpp REQUIRED)
+# Do not use find_package for yaml-cpp while it is packaged as a submodule.
+# Eventually if the submodule changes are accepted upstream, we can remove it
+# and return to using the standard method for installing and detecting
+# dependencies.
+#find_package(yaml-cpp REQUIRED)
 
 # Look for optional compression packages
 find_package(zlib)
