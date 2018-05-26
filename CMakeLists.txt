@@ -15,7 +15,13 @@ set( BUILD_SHARED_LIBS OFF )
 # The compiler command database can be used by editors for code completion
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(yaml-cpp REQUIRED)
+option(YAML_CPP_BUILD_TESTS OFF)
+add_subdirectory(extern/yaml-cpp)
+# Do not use find_package for yaml-cpp while it is packaged as a submodule.
+# Eventually if the submodule changes are accepted upstream, we can remove it
+# and return to using the standard method for installing and detecting
+# dependencies.
+#find_package(yaml-cpp REQUIRED)
 
 # Look for optional compression packages
 find_package(zlib)
