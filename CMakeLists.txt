@@ -24,14 +24,27 @@ ExternalProject_Add(yaml-cpp-extern
     CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}"
 )
 
-find_package(yaml-cpp REQUIRED)
+# Unfortunately find_package doesn't work with CMake ExternalProjects, so we
+# need to create the yaml-cpp dependency manually. Making yaml-cpp-extern a
+# dependency of yaml-cpp below ensures that the YAML build artifacts will be
+# available before building asdf-cpp. Once the proposed yaml-cpp changes are
+# integrated upstream, we should revert to using more traditional means for
+# dependency discovery.
+#find_package(yaml-cpp REQUIRED)
+ExternalProject_Get_Property(yaml-cpp-extern install_dir)
+set (YAML_CPP_DIR "${install_dir}/src/yaml-cpp-extern")
+set (YAML_INCLUDE_DIR "${YAML_CPP_DIR}/include")
+set (YAML_LIBRARIES "${YAML_CPP_DIR}-build/libyaml-cpp.a")
+add_library(yaml-cpp STATIC IMPORTED)
+set_property(TARGET yaml-cpp PROPERTY IMPORTED_LOCATION ${YAML_LIBRARIES})
+add_dependencies( yaml-cpp yaml-cpp-extern )
 
 # Look for optional compression packages
 find_package(zlib)
 find_package(bzip2)
 
 set( INCLUDE_DIR include )
-include_directories( ${INCLUDE_DIR} )
+include_directories( ${INCLUDE_DIR} ${YAML_INCLUDE_DIR} )
 
 set(asdf_c_flags ${CMAKE_C_FLAGS})
 set(asdf_cxx_flags ${CMAKE_CXX_FLAGS})
