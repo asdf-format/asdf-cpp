@@ -15,20 +15,38 @@ set( BUILD_SHARED_LIBS OFF )
 # The compiler command database can be used by editors for code completion
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-option(YAML_CPP_BUILD_TESTS OFF)
-add_subdirectory(extern/yaml-cpp)
-# Do not use find_package for yaml-cpp while it is packaged as a submodule.
-# Eventually if the submodule changes are accepted upstream, we can remove it
-# and return to using the standard method for installing and detecting
-# dependencies.
+include(ExternalProject)
+# For now use this fork/branch of yaml-cpp until changes are integrated upstream
+ExternalProject_Add(yaml-cpp-extern
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/yaml-cpp
+    GIT_REPOSITORY https://github.com/drdavella/yaml-cpp
+    GIT_TAG easier-to-inherit
+    STEP_TARGETS build install
+    CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}"
+    EXCLUDE_FROM_ALL TRUE
+)
+
+# Unfortunately find_package doesn't work with CMake ExternalProjects, so we
+# need to create the yaml-cpp dependency manually. Making yaml-cpp-extern a
+# dependency of yaml-cpp below ensures that the YAML build artifacts will be
+# available before building asdf-cpp. Once the proposed yaml-cpp changes are
+# integrated upstream, we should revert to using more traditional means for
+# dependency discovery.
 #find_package(yaml-cpp REQUIRED)
+ExternalProject_Get_Property(yaml-cpp-extern install_dir)
+set (YAML_CPP_DIR "${install_dir}/src/yaml-cpp-extern")
+set (YAML_INCLUDE_DIR "${YAML_CPP_DIR}/include")
+set (YAML_LIBRARIES "${YAML_CPP_DIR}-build/libyaml-cpp.a")
+add_library(yaml-cpp STATIC IMPORTED)
+set_property(TARGET yaml-cpp PROPERTY IMPORTED_LOCATION ${YAML_LIBRARIES})
+add_dependencies( yaml-cpp yaml-cpp-extern-build )
 
 # Look for optional compression packages
 find_package(zlib)
 find_package(bzip2)
 
 set( INCLUDE_DIR include )
-include_directories( ${INCLUDE_DIR} )
+include_directories( ${INCLUDE_DIR} ${YAML_INCLUDE_DIR} )
 
 set(asdf_c_flags ${CMAKE_C_FLAGS})
 set(asdf_cxx_flags ${CMAKE_CXX_FLAGS})
