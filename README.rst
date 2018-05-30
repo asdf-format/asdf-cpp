@@ -71,6 +71,14 @@ To install `asdf-cpp` itself, run the following command:
 
 `$ make install`
 
+.. note::
+
+    So far little effort has been made for cross-platform portability. It
+    should be possible to build the library with any sufficiently recent
+    version of clang or gcc. It almost certainly will not build on Windows yet.
+    If this is important to you, please feel free to submit a PR in order to
+    help us support cross-platform compatibility.
+
 Examples
 ********
 
@@ -116,6 +124,23 @@ incrementally:
 * Table data
 * External arrays and `"exploded" form
   <http://asdf-standard.readthedocs.io/en/latest/file_layout.html#exploded-form>`_
+* Handling big-endian data and big-endian platforms
+
+Contributing
+************
+
+We welcome feedback and contributions to the project. Contributions of
+code, documentation, or general feedback are all appreciated. Please
+follow the `contributing guidelines <CONTRIBUTING.md>`__ to submit an
+issue or a pull request.
+
+We strive to provide a welcoming community to all of our users by
+abiding to the `Code of Conduct <CODE_OF_CONDUCT.md>`__.
 
 See Also
 ********
+
+* `ASDF Standard <http://asdf-standard.readthedocs.io/en/latest/index.html>`_
+* `ASDF for Python <http://asdf.readthedocs.io/en/latest/>`_
+* `yaml-cpp <https://github.com/jbeder/yaml-cpp>`_
+
