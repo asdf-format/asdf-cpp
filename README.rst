@@ -14,13 +14,13 @@ Dependencies
 
 Building and installing this library requires `cmake <https://cmake.org>`_.
 
-This library currently depends on a fork of `yaml-cpp`, which contains minor
-modifications that allow `asdf-cpp` to provide a cleaner and more intuitive API
-than would otherwise be possible.
+This library currently depends on a fork of **yaml-cpp**, which contains minor
+modifications that allow **asdf-cpp** to provide a cleaner and more intuitive
+API than would otherwise be possible.
 
 The fork can be found at `<https://github.com/drdavella/yaml-cpp>`_. This
 dependency is currently packaged as a CMake external project and is
-automatically built when building `asdf-cpp`. Additional instructions are
+automatically built when building **asdf-cpp**. Additional instructions are
 below.
 
 We hope that the changes in this fork will eventually be merged into the
@@ -37,39 +37,39 @@ Build Instructions
 CMake is used to configure, build, and install the package. CMake encourages
 out-of-place builds. The first step is to create a build directory:
 
-`$ mkdir build`
+``$ mkdir build``
 
 Next, move into the build directory:
 
-`$ cd build`
+``$ cd build``
 
 Now we configure CMake. This step allows users to configure the path to the
-installed library using the `CMAKE_INSTALL_PREFIX` variable. If this variable
+installed library using the ``CMAKE_INSTALL_PREFIX`` variable. If this variable
 is omitted from the command line, CMake will use a default system path as a
-prefix. This will most likely be `/usr/local` on a Unix-like system. Note that
-installing to a system path may require elevated privileges.
+prefix. This will most likely be ``/usr/local`` on a Unix-like system. Note
+that installing to a system path may require elevated privileges.
 
-`$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/tree`
+``$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/tree``
 
 Now it is possible to build the package. CMake will automatically build the
-`yaml-cpp` dependency in this step as well:
+**yaml-cpp** dependency in this step as well:
 
-`$ make`
+``$ make``
 
 The example programs can be run without installing the package. However, in
 order to link other applications against this library, it will need to be
 installed.
 
-To install the `yaml-cpp` dependency to the path specified by
-`CMAKE_INSTALL_PREFIX`, run the following command. This step will be necessary
-unless you cloned the repository (remember to use the fork mentioned above for
-now) from github and installed it separately:
+To install the **yaml-cpp** dependency to the path specified by
+``CMAKE_INSTALL_PREFIX``, run the following command. This step will be
+necessary unless you cloned the repository (remember to use the fork mentioned
+above for now) from github and installed it separately:
 
-`$ make yaml-cpp-extern-install`
+``$ make yaml-cpp-extern-install``
 
-To install `asdf-cpp` itself, run the following command:
+To install **asdf-cpp** itself, run the following command:
 
-`$ make install`
+``$ make install``
 
 .. note::
 
@@ -82,33 +82,33 @@ To install `asdf-cpp` itself, run the following command:
 Examples
 ********
 
-The `examples` directory contains toy programs that demonstrate the current
-functionality of the library. The program `write-asdf` creates an ASDF file
+The ``examples`` directory contains toy programs that demonstrate the current
+functionality of the library. The program ``write-asdf`` creates an ASDF file
 that contains YAML metadata and also several n-dimensional arrays. This file
-can be read by the program `read-asdf`.
+can be read by the program ``read-asdf``.
 
-The program `write-compressed` demonstrates ASDF's ability to compress the
+The program ``write-compressed`` demonstrates ASDF's ability to compress the
 n-dimensional data arrays for more efficient storage on disk. The file created
-by `write-compressed` can be read by `read-compressed`.
+by ``write-compressed`` can be read by ``read-compressed``.
 
 Running the examples
 --------------------
 
 After configuring and building the package, the example program executables can
-be found in the following directory (where `$BUILD_ROOT` represents the path to
-the CMake build directory that was created when setting up the build):
+be found in the following directory (where ``$BUILD_ROOT`` represents the path
+to the CMake build directory that was created when setting up the build):
 
-`$BUILD_ROOT/examples`
+``$BUILD_ROOT/examples``
 
 The examples can be run from the command line. For example, to create an ASDF
 file, run the following command:
 
-`$BUILD_ROOT/examples/write-asdf example.asdf`
+``$BUILD_ROOT/examples/write-asdf example.asdf``
 
 This will create a new file called ``example.asdf``. This file can be read
 using the following command:
 
-`$BUILD_ROOT/examples/read-asdf example.asdf`
+``$BUILD_ROOT/examples/read-asdf example.asdf``
 
 Limitations and Future Improvements
 ***********************************
