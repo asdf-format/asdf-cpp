@@ -14,6 +14,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    /* Use this constructor to read the ASDF file */
     Asdf::AsdfFile asdf(argv[1]);
     Asdf::Node tree = asdf.get_tree();
 
@@ -23,6 +24,10 @@ int main(int argc, char **argv)
     /* Display the entire tree */
     std::cout << tree << std::endl;
 
+    /*
+     * Read the NDArray that is stored at this node. The application must know
+     * the underlying data type of the array at compile time.
+     */
     auto array = tree["array"].as<Asdf::NDArray<int>>();
     std::cout << array << std::endl;
 
@@ -30,6 +35,12 @@ int main(int argc, char **argv)
     assert(array.get_compression_type() == none);
     assert(array.is_compressed() == false);
 
+    /*
+     * Get the raw data stored in the array. In this case it is actually a
+     * memory map of the underlying file. This is safe to do as long as we
+     * intend to use it as a read-only buffer. It is also acceptable since we
+     * have confirmed that the array was not stored compressed.
+     */
     int *ddata = array.get_raw_data();
     for (int i = 0; i < 10; i++)
     {
@@ -39,6 +50,7 @@ int main(int argc, char **argv)
     auto array_2d = tree["2darray"].as<Asdf::NDArray<int>>();
     std::cout << array_2d << std::endl;
 
+    /* Confirm that the array is in fact two dimensional */
     auto shape = array_2d.get_shape();
     assert(shape.size() == 2);
     assert(shape[0] == 10);

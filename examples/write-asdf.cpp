@@ -16,6 +16,7 @@ int main(int argc, char **argv)
     Asdf::AsdfFile asdf;
     Asdf::Node tree = asdf.get_tree();
 
+    /* Examples of storing basic YAML metadata */
     tree["foo"] = "hello, world!";
     tree["vec"] = std::vector<int>({1,2,3,4,5});
     tree["bar"] = Asdf::Node();
@@ -29,6 +30,10 @@ int main(int argc, char **argv)
         nums[i] = i;
     }
 
+    /*
+     * Store the array to the tree using NDArray. It is necessary to specify
+     * both the type and the size of the array at compile time.
+     */
     tree["array"] = Asdf::NDArray<int>(nums, array_size);
 
     /* Create 2D array of integers */
@@ -41,6 +46,7 @@ int main(int argc, char **argv)
         }
     }
 
+    /* Specify the array dimensions */
     auto shape = std::vector<size_t> { 10, 20 };
     tree["2darray"] = Asdf::NDArray<int>((int *) array_2d, shape);
 
@@ -66,6 +72,7 @@ int main(int argc, char **argv)
 
     tree["random"] = Asdf::NDArray<double>(random.data(), random.size());
 
+    /* Create an output file stream and write the ASDF file contents */
     std::ofstream outfile(argv[1]);
     outfile << asdf;
 }
