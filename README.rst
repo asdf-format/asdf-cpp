@@ -30,6 +30,8 @@ leave a comment on the `associated PR in yaml-cpp
 <https://github.com/jbeder/yaml-cpp/pull/585>`_, which may help encourage it to
 be accepted more quickly.
 
+The **zlib** and **bzip2** libraries are optional dependencies but are required
+in order to support compression of array data blocks.
 
 Build Instructions
 ******************
@@ -71,10 +73,10 @@ To install **asdf-cpp** itself, run the following command:
 
 ``$ make install``
 
-.. note::
+**N.B**:
 
-    So far little effort has been made for cross-platform portability. It
-    should be possible to build the library with any sufficiently recent
+    So far little effort has been made to support cross-platform portability.
+    It should be possible to build the library with any sufficiently recent
     version of clang or gcc. It almost certainly will not build on Windows yet.
     If this is important to you, please feel free to submit a PR in order to
     help us support cross-platform compatibility.
