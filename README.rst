@@ -9,30 +9,10 @@ contains a prototype library implementation of the `ASDF Standard
 feature-complete, but it supports ASDF's core capabilities of storing metadata
 in YAML and serializing n-dimensional numerical data arrays.
 
-Examples
-********
-
-The `examples` directory contains toy programs that demonstrate the current
-functionality of the library. The program `write-asdf` creates an ASDF file
-that contains YAML metadata and also several n-dimensional arrays. This file
-can be read by the program `read-asdf`.
-
-The program `write-compressed` demonstrates ASDF's ability to compress the
-n-dimensional data arrays for more efficient storage on disk. The file created
-by `write-compressed` can be read by `read-compressed`.
-
-Running the examples
---------------------
-
-After configuring and building the package, the example program executables can
-be found in the following directory:
-
-`$BUILD_ROOT/
-
-
-
 Dependencies
 ************
+
+Building and installing this library requires `cmake <https://cmake.org>`_.
 
 This library currently depends on a fork of `yaml-cpp`, which contains minor
 modifications that allow `asdf-cpp` to provide a cleaner and more intuitive API
@@ -51,6 +31,38 @@ be accepted more quickly.
 
 Build Instructions
 ******************
+
+
+Examples
+********
+
+The `examples` directory contains toy programs that demonstrate the current
+functionality of the library. The program `write-asdf` creates an ASDF file
+that contains YAML metadata and also several n-dimensional arrays. This file
+can be read by the program `read-asdf`.
+
+The program `write-compressed` demonstrates ASDF's ability to compress the
+n-dimensional data arrays for more efficient storage on disk. The file created
+by `write-compressed` can be read by `read-compressed`.
+
+Running the examples
+--------------------
+
+After configuring and building the package, the example program executables can
+be found in the following directory (where `$BUILD_ROOT` represents the path to
+the CMake build directory that was created when setting up the build):
+
+`$BUILD_ROOT/examples`
+
+The examples can be run from the command line. For example, to create an ASDF
+file, run the following command:
+
+`$BUILD_ROOT/examples/write-asdf example.asdf`
+
+This will create a new file called ``example.asdf``. This file can be read
+using the following command:
+
+`$BUILD_ROOT/examples/read-asdf example.asdf`
 
 Limitations and Future Improvements
 ***********************************
