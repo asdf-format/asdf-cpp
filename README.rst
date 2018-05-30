@@ -81,6 +81,19 @@ To install **asdf-cpp** itself, run the following command:
     If this is important to you, please feel free to submit a PR in order to
     help us support cross-platform compatibility.
 
+Linking Against asdf-cpp
+************************
+
+To link an application against **asdf-cpp**, it is recommended to use CMake.
+When configuring the build for the application, the ``CMAKE_PREFIX_PATH``
+should be set to the same path as the ``CMAKE_INSTALL_PREFIX`` that was used
+to configure the library build. (If not given, it will default to a system path
+such as ``/usr/local``).
+
+A very basic application example complete with ``CMakeLists.txt`` is provided
+in ``examples/asdf-toy``. This can be used as a project template for
+applications that wish to build against **asdf-cpp**.
+
 Examples
 ********
 
