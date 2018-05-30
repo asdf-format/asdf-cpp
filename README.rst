@@ -94,6 +94,14 @@ A very basic application example complete with ``CMakeLists.txt`` is provided
 in ``examples/asdf-toy``. This can be used as a project template for
 applications that wish to build against **asdf-cpp**.
 
+To build the toy:
+
+``$ cd examples/asdf-toy``
+``$ mkdir build``
+``$ cd build``
+``$ cmake .. -DCMAKE_PREFIX_PATH=/path/to/install/tree``
+``$ make``
+
 Examples
 ********
 
