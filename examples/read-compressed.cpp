@@ -34,6 +34,13 @@ int main(int argc, char **argv)
     assert(zlib_array.get_compression_type() == CompressionType::zlib);
     assert(zlib_array.is_compressed() == true);
 
+    /*
+     * Unlike the example in read-asdf that used the get_raw_data method of
+     * NDArray, in this case we must use read instead. This is because the
+     * underlying data is compressed, so it does not make sense to access the
+     * raw memory map of the file. Instead, read returns to the user a copy of
+     * the decompressed data.
+     */
     auto zlib_data = zlib_array.read().get();
     verify(zlib_data, zlib_array.get_shape()[0]);
 
