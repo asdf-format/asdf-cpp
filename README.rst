@@ -34,6 +34,42 @@ be accepted more quickly.
 Build Instructions
 ******************
 
+CMake is used to configure, build, and install the package. CMake encourages
+out-of-place builds. The first step is to create a build directory:
+
+`$ mkdir build`
+
+Next, move into the build directory:
+
+`$ cd build`
+
+Now we configure CMake. This step allows users to configure the path to the
+installed library using the `CMAKE_INSTALL_PREFIX` variable. If this variable
+is omitted from the command line, CMake will use a default system path as a
+prefix. This will most likely be `/usr/local` on a Unix-like system. Note that
+installing to a system path may require elevated privileges.
+
+`$ cmake .. -DCMAKE_INSTALL_PREFIX=/path/to/install/tree`
+
+Now it is possible to build the package. CMake will automatically build the
+`yaml-cpp` dependency in this step as well:
+
+`$ make`
+
+The example programs can be run without installing the package. However, in
+order to link other applications against this library, it will need to be
+installed.
+
+To install the `yaml-cpp` dependency to the path specified by
+`CMAKE_INSTALL_PREFIX`, run the following command. This step will be necessary
+unless you cloned the repository (remember to use the fork mentioned above for
+now) from github and installed it separately:
+
+`$ make yaml-cpp-extern-install`
+
+To install `asdf-cpp` itself, run the following command:
+
+`$ make install`
 
 Examples
 ********
