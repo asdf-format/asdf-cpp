@@ -15,6 +15,27 @@
 #define NDARRAY_TAG         (NDARRAY_TAG_BASE "-" NDARRAY_TAG_VERSION)
 
 
+static std::string system_byte_order = "";
+
+static inline std::string get_system_byte_order()
+{
+    if (system_byte_order == "")
+    {
+        union
+        {
+            uint32_t word;
+            uint8_t bytes[4];
+        };
+
+        word = 0xdeadbeef;
+
+        system_byte_order = (bytes[0] == 0xef) ? "little" : "big";
+    }
+
+    return system_byte_order;
+}
+
+
 namespace Asdf {
 
 template <typename T>
@@ -31,7 +52,7 @@ class NDArray
             }
 
             this->data = data;
-            this->byteorder = "little";
+            this->byteorder = get_system_byte_order();
             this->shape = shape;
             this->datatype = dtype_to_string<T>();
             this->compression = compression;
