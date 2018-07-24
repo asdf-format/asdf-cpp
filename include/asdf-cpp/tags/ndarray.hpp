@@ -9,10 +9,32 @@
 #include "../datatypes.hpp"
 #include "../compression.hpp"
 #include "../block.hpp"
+#include "../byteswap.hpp"
 
 #define NDARRAY_TAG_BASE    "tag:stsci.edu:asdf/core/ndarray"
 #define NDARRAY_TAG_VERSION "1.0.0"
 #define NDARRAY_TAG         (NDARRAY_TAG_BASE "-" NDARRAY_TAG_VERSION)
+
+
+static std::string system_byte_order = "";
+
+static inline std::string get_system_byte_order()
+{
+    if (system_byte_order == "")
+    {
+        union
+        {
+            uint32_t word;
+            uint8_t bytes[4];
+        };
+
+        word = 0xdeadbeef;
+
+        system_byte_order = (bytes[0] == 0xef) ? "little" : "big";
+    }
+
+    return system_byte_order;
+}
 
 
 namespace Asdf {
@@ -31,7 +53,7 @@ class NDArray
             }
 
             this->data = data;
-            this->byteorder = "little";
+            this->byteorder = get_system_byte_order();
             this->shape = shape;
             this->datatype = dtype_to_string<T>();
             this->compression = compression;
@@ -79,8 +101,16 @@ class NDArray
 
         std::shared_ptr<T> read(void)
         {
-            T *ptr = static_cast<T *>(process_block_data(
-                        (const uint8_t *) file->get_block(source)));
+            const uint8_t *block_data = (const uint8_t *) file->get_block(source);
+            const block_header_t *header = (const block_header_t *) block_data;
+
+            T *ptr = static_cast<T *>(process_block_data(block_data));
+
+            if (byteorder != system_byte_order)
+            {
+                byteswap_data(ptr, header->get_data_size()/sizeof(T));
+            }
+
             return std::shared_ptr<T>(ptr);
         }
 
