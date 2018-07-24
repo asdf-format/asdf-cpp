@@ -9,6 +9,7 @@
 #include "../datatypes.hpp"
 #include "../compression.hpp"
 #include "../block.hpp"
+#include "../byteswap.hpp"
 
 #define NDARRAY_TAG_BASE    "tag:stsci.edu:asdf/core/ndarray"
 #define NDARRAY_TAG_VERSION "1.0.0"
@@ -100,8 +101,16 @@ class NDArray
 
         std::shared_ptr<T> read(void)
         {
-            T *ptr = static_cast<T *>(process_block_data(
-                        (const uint8_t *) file->get_block(source)));
+            const uint8_t *block_data = (const uint8_t *) file->get_block(source);
+            const block_header_t *header = (const block_header_t *) block_data;
+
+            T *ptr = static_cast<T *>(process_block_data(block_data));
+
+            if (byteorder != system_byte_order)
+            {
+                byteswap_data(ptr, header->get_data_size()/sizeof(T));
+            }
+
             return std::shared_ptr<T>(ptr);
         }
 
