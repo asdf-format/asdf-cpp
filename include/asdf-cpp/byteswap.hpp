@@ -16,6 +16,24 @@
 
 
 template <typename T>
+typename std::enable_if<(sizeof(T) == 1), void>::type
+byteswap_data(T *data, size_t count)
+{
+    /* NOP -- covers corner case */
+}
+
+template <typename T>
+typename std::enable_if<(sizeof(T) == 2), void>::type
+byteswap_data(T *data, size_t count)
+{
+    /* This loop could be parallelized with OpenMP */
+    for (size_t i = 0; i < count; i++)
+    {
+        data[i] = bswap_16(data[i]);
+    }
+}
+
+template <typename T>
 typename std::enable_if<(sizeof(T) == 4), void>::type
 byteswap_data(T *data, size_t count)
 {
@@ -23,5 +41,16 @@ byteswap_data(T *data, size_t count)
     for (size_t i = 0; i < count; i++)
     {
         data[i] = bswap_32(data[i]);
+    }
+}
+
+template <typename T>
+typename std::enable_if<(sizeof(T) == 8), void>::type
+byteswap_data(T *data, size_t count)
+{
+    /* This loop could be parallelized with OpenMP */
+    for (size_t i = 0; i < count; i++)
+    {
+        data[i] = bswap_64(data[i]);
     }
 }
