@@ -1,3 +1,7 @@
+/**
+ * The bulk of this file represents an implementation of a custom JSON Schema
+ * adapter that allows YAML schemas and files to be used for validation.
+ */
 #include <string>
 #include <cstdio>
 #include <cstdint>
@@ -12,11 +16,83 @@
 using valijson::adapters::Adapter;
 using valijson::adapters::BasicAdapter;
 using valijson::adapters::FrozenValue;
+using valijson::adapters::DerefProxy;
 
 
+class YamlCppArrayValueIterator;
+
+
+/**
+ * @brief  Light weight wrapper for a YamlCpp array node.
+ *
+ * This class is light weight wrapper for a YamlCpp array. It provides a
+ * minimum set of container functions and typedefs that allow it to be used as
+ * an iterable container.
+ *
+ * An instance of this class contains a single reference to the underlying
+ * YamlCpp node, assumed to be an array, so there is very little overhead
+ * associated with copy construction and passing by node.
+ */
 class YamlCppArray
 {
+public:
+    typedef YamlCppArrayValueIterator const_iterator;
+    typedef YamlCppArrayValueIterator iterator;
 
+    /// Construct a YamlCppArray referencing an empty array.
+    YamlCppArray() : node(emptyArray()) { }
+
+    /**
+     * @brief   Construct a YamlCppArray referencing a specific YAML node.
+     *
+     * @param   node   reference to a YAML node
+     *
+     * Note that this constructor will throw an exception if the node is not
+     * an array.
+     */
+    YamlCppArray(const YAML::Node &node) : node(node)
+    {
+        if (!node.IsSequence()) {
+            throw std::runtime_error("Node is not an array.");
+        }
+    }
+
+    /**
+     * @brief   Return an iterator for the first element of the array.
+     *
+     * The iterator return by this function is effectively the iterator
+     * returned by the underlying YamlCpp implementation.
+     */
+    YamlCppArrayValueIterator begin() const;
+
+    /**
+     * @brief   Return an iterator for one-past the last element of the array.
+     *
+     * The iterator return by this function is effectively the iterator
+     * returned by the underlying YamlCpp implementation.
+     */
+    YamlCppArrayValueIterator end() const;
+
+    /// Return the number of elements in the array.
+    size_t size() const
+    {
+        return node.size();
+    }
+
+private:
+    /**
+     * @brief   Return a reference to a YamlCpp node that is an empty array.
+     *
+     * Note that the value returned by this function is a singleton.
+     */
+    static const YAML::Node & emptyArray()
+    {
+        static const YAML::Node array(YAML::NodeType::Sequence);
+        return array;
+    }
+
+    /// Reference to the contained array
+    const YAML::Node &node;
 };
 
 
@@ -217,6 +293,95 @@ class YamlCppAdapter:
         YamlCppAdapter() : BasicAdapter() { }
         YamlCppAdapter(const YAML::Node &node) : BasicAdapter(node) { }
 
+};
+
+
+/**
+ * @brief   Class for iterating over values held in a YAML array.
+ *
+ * This class provides a YAML array iterator that dereferences as an instance
+ * of YamlCppAdapter representing a value stored in the array.
+ *
+ * @see YamlCppArray
+ */
+class YamlCppArrayValueIterator:
+    public std::iterator<
+        std::forward_iterator_tag,      // forward iterator tag
+        YamlCppAdapter>                 // value type
+{
+
+public:
+
+    /**
+     * @brief   Construct a new YamlCppArrayValueIterator using an existing
+     *          YamlCpp iterator.
+     *
+     * @param   itr  YamlCpp iterator to store
+     */
+    YamlCppArrayValueIterator(const YAML::Node::const_iterator &itr)
+      : itr(itr) { }
+
+    /// Returns a YamlCppAdapter that contains the value of the current element.
+    YamlCppAdapter operator*() const
+    {
+        return YamlCppAdapter(*itr);
+    }
+
+    DerefProxy<YamlCppAdapter> operator->() const
+    {
+        return DerefProxy<YamlCppAdapter>(**this);
+    }
+
+    /**
+     * @brief   Compare this iterator against another iterator.
+     *
+     * Note that this directly compares the iterators, not the underlying
+     * values, and assumes that two identical iterators will point to the same
+     * underlying object.
+     *
+     * @param   rhs  iterator to compare against
+     *
+     * @returns true if the iterators are equal, false otherwise.
+     */
+    bool operator==(const YamlCppArrayValueIterator &rhs) const
+    {
+        return itr == rhs.itr;
+    }
+
+    bool operator!=(const YamlCppArrayValueIterator &rhs) const
+    {
+        return !(itr == rhs.itr);
+    }
+
+    YamlCppArrayValueIterator& operator++()
+    {
+        itr++;
+
+        return *this;
+    }
+
+    YamlCppArrayValueIterator operator++(int)
+    {
+        YamlCppArrayValueIterator iterator_pre(itr);
+        ++(*this);
+        return iterator_pre;
+    }
+
+    void advance(std::ptrdiff_t n)
+    {
+        if (n < 0) {
+            throw std::runtime_error(
+                    "Attempt to use negative increment on forward iterator");
+        }
+
+        while (n-- > 0) {
+            itr++;
+        }
+    }
+
+private:
+
+    YAML::Node::const_iterator itr;
 };
 
 
