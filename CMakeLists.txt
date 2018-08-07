@@ -64,6 +64,9 @@ set_target_properties(asdf-cpp PROPERTIES
   COMPILE_FLAGS "${asdf_c_flags} ${asdf_cxx_flags}"
 )
 
+add_executable( validator src/validation.cpp )
+target_link_libraries( validator yaml-cpp )
+
 if (${ZLIB_FOUND})
     target_compile_definitions(asdf-cpp PRIVATE HAS_ZLIB=1)
     target_include_directories(asdf-cpp PRIVATE ${ZLIB_INCLUDE_DIRS})
