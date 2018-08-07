@@ -19,7 +19,11 @@ using valijson::adapters::FrozenValue;
 using valijson::adapters::DerefProxy;
 
 
+class YamlCppAdapter;
 class YamlCppArrayValueIterator;
+class YamlCppObjectMemberIterator;
+
+typedef std::pair<std::string, YamlCppAdapter> YamlCppObjectMember;
 
 
 /**
@@ -96,15 +100,85 @@ private:
 };
 
 
-class YamlCppObjectMember
-{
-
-};
-
-
+/**
+ * @brief  Light weight wrapper for a YAML object.
+ *
+ * This class is light weight wrapper for a YAML object. It provides a
+ * minimum set of container functions and typedefs that allow it to be used as
+ * an iterable container.
+ *
+ * An instance of this class contains a single reference to the underlying
+ * YAML object, assumed to be an object, so there is very little overhead
+ * associated with copy construction and passing by value.
+ */
 class YamlCppObject
 {
+public:
 
+    typedef YamlCppObjectMemberIterator const_iterator;
+    typedef YamlCppObjectMemberIterator iterator;
+
+    /// Construct a YamlCppObject referencing an empty object singleton.
+    YamlCppObject() : node(emptyObject()) { }
+
+    /**
+     * @brief   Construct a YamlCppObject referencing a specific YAML node.
+     *
+     * @param   node  reference to a YAML node
+     *
+     * Note that this constructor will throw an exception if the node is not
+     * an object.
+     */
+    YamlCppObject(const YAML::Node &node) : node(node)
+    {
+        if (!node.IsMap()) {
+            throw std::runtime_error("Value is not an object.");
+        }
+    }
+
+    /**
+     * @brief   Return an iterator for this first object member
+     *
+     * The iterator return by this function is effectively a wrapper around
+     * the iterator value returned by the underlying YamlCpp implementation.
+     */
+    YamlCppObjectMemberIterator begin() const;
+
+    /**
+     * @brief   Return an iterator for an invalid object member that indicates
+     *          the end of the collection.
+     *
+     * The iterator return by this function is effectively a wrapper around
+     * the iterator value returned by the underlying YamlCpp implementation.
+     */
+    YamlCppObjectMemberIterator end() const;
+
+    /**
+     * @brief   Return an iterator for a member/property with the given name
+     *
+     * @param   propertyName   Property name
+     *
+     * @returns a valid iterator if found, or an invalid iterator if not found
+     */
+    YamlCppObjectMemberIterator find(const std::string &propertyName) const;
+
+    /// Return the number of members in the object
+    size_t size() const
+    {
+        return node.size();
+    }
+
+private:
+
+    /// Return a reference to an empty YamlCpp object
+    static const YAML::Node & emptyObject()
+    {
+        static const YAML::Node object(YAML::NodeType::Map);
+        return object;
+    }
+
+    /// Reference to the contained object
+    const YAML::Node &node;
 };
 
 
@@ -229,6 +303,24 @@ class YamlCppNode
             return opt::optional<YamlCppArray>();
         }
 
+        /**
+         * @brief   Optionally return a YamlCppObject instance.
+         *
+         * If the referenced YAML node is an object, this function will return
+         * a std::optional containing a YamlCppObject instance referencing the
+         * object.
+         *
+         * Otherwise it will return an empty optional.
+         */
+        opt::optional<YamlCppObject> getObjectOptional() const
+        {
+            if (isObject()) {
+                return opt::make_optional(YamlCppObject(node));
+            }
+
+            return opt::optional<YamlCppObject>();
+        }
+
         bool isArray() const
         {
             return node.IsSequence() && !node.IsNull();
@@ -261,7 +353,7 @@ class YamlCppNode
 
         bool isObject() const
         {
-            return false;
+            return isNull() && node.IsMap();
         }
 
         bool isNull() const
@@ -385,14 +477,145 @@ private:
 };
 
 
+/**
+ * @brief   Class for iterating over the members belonging to a YAML object.
+ *
+ * This class provides a YAML object iterator that dereferences as an instance
+ * of YamlCppObjectMember representing one of the members of the object. It has
+ * been implemented using the boost iterator_facade template.
+ *
+ * @see YamlCppObject
+ * @see YamlCppObjectMember
+ */
+class YamlCppObjectMemberIterator:
+    public std::iterator<
+        std::forward_iterator_tag,      // forward iterator
+        YamlCppObjectMember>            // value type
+{
+public:
+
+    /**
+     * @brief   Construct an iterator from a YamlCpp iterator.
+     *
+     * @param   itr  YamlCpp iterator to store
+     */
+    YamlCppObjectMemberIterator(const YAML::const_iterator &itr) : itr(itr) { }
+
+    /**
+     * @brief   Returns a YamlCppObjectMember that contains the key and value
+     *          belonging to the object member identified by the iterator.
+     */
+    YamlCppObjectMember operator*() const
+    {
+        return YamlCppObjectMember("", *itr);
+    }
+
+    DerefProxy<YamlCppObjectMember> operator->() const
+    {
+        return DerefProxy<YamlCppObjectMember>(**this);
+    }
+
+    /**
+     * @brief   Compare this iterator with another iterator.
+     *
+     * Note that this directly compares the iterators, not the underlying
+     * values, and assumes that two identical iterators will point to the same
+     * underlying object.
+     *
+     * @param   rhs  Iterator to compare with
+     *
+     * @returns true if the underlying iterators are equal, false otherwise
+     */
+    bool operator==(const YamlCppObjectMemberIterator &rhs) const
+    {
+        return itr == rhs.itr;
+    }
+
+    bool operator!=(const YamlCppObjectMemberIterator &rhs) const
+    {
+        return !(itr == rhs.itr);
+    }
+
+    const YamlCppObjectMemberIterator& operator++()
+    {
+        itr++;
+
+        return *this;
+    }
+
+    YamlCppObjectMemberIterator operator++(int)
+    {
+        YamlCppObjectMemberIterator iterator_pre(itr);
+        ++(*this);
+        return iterator_pre;
+    }
+
+private:
+
+    /// Iternal copy of the original YamlCpp iterator
+    YAML::const_iterator itr;
+};
+
+
+inline bool YamlCppFrozenNode::equalTo(const Adapter &other, bool strict) const
+{
+    return YamlCppAdapter(node).equalTo(other, strict);
+}
+
+
+inline YamlCppArrayValueIterator YamlCppArray::begin() const
+{
+    return node.begin();
+}
+
+
+inline YamlCppArrayValueIterator YamlCppArray::end() const
+{
+    return node.end();
+}
+
+
+inline YamlCppObjectMemberIterator YamlCppObject::begin() const
+{
+    return node.begin();
+}
+
+
+inline YamlCppObjectMemberIterator YamlCppObject::end() const
+{
+    return node.end();
+}
+
+
+inline YamlCppObjectMemberIterator YamlCppObject::find(
+    const std::string &propertyName) const
+{
+#if 0
+    for (auto itr = node.begin(); itr != node.end(); ++itr) {
+        if (itr->first == propertyName) {
+            return itr;
+        }
+    }
+#endif
+
+    return node.end();
+}
+
 int main(int argc, char **argv)
 {
-    if (argc != 2)
+    if (argc != 3)
     {
         fprintf(stderr, "USAGE: %s <schema> <document>\n", argv[0]);
         return 1;
     }
 
     YAML::Node schema = YAML::LoadFile(argv[1]);
+    std::cout << schema << std::endl;
+    std::cout << schema.Scalar() << std::endl;
+    for (auto itr = schema.begin(); itr != schema.end(); ++itr)
+    {
+        std::cout << itr->first << std::endl;
+    }
+
     YamlCppAdapter schemaAdapter(schema);
 }
