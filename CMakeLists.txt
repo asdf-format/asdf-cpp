@@ -46,7 +46,8 @@ find_package(zlib)
 find_package(bzip2)
 
 set( INCLUDE_DIR include )
-include_directories( ${INCLUDE_DIR} ${YAML_INCLUDE_DIR} )
+set( VALIJSON_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extern/valijson/include" )
+include_directories( ${INCLUDE_DIR} ${YAML_INCLUDE_DIR} ${VALIJSON_INCLUDE_DIR} )
 
 set(asdf_c_flags ${CMAKE_C_FLAGS})
 set(asdf_cxx_flags ${CMAKE_CXX_FLAGS})
