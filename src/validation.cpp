@@ -621,6 +621,10 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    YAML::Node schema = YAML::LoadFile(argv[1]);
-    YamlCppAdapter schemaAdapter(schema);
+    YAML::Node yaml_schema = YAML::LoadFile(argv[1]);
+
+    valijson::Schema schema;
+    valijson::SchemaParser parser;
+    YamlCppAdapter schemaAdapter(yaml_schema);
+    parser.populateSchema(schemaAdapter, schema);
 }
