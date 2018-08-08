@@ -599,6 +599,20 @@ inline YamlCppObjectMemberIterator YamlCppObject::find(
     return node.end();
 }
 
+
+/// Specialization of the AdapterTraits template struct for YamlCppAdapter.
+template<>
+struct valijson::adapters::AdapterTraits<YamlCppAdapter>
+{
+    typedef YAML::Node DocumentType;
+
+    static std::string adapterName()
+    {
+        return "YamlCppAdapter";
+    }
+};
+
+
 int main(int argc, char **argv)
 {
     if (argc != 3)
