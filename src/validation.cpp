@@ -590,13 +590,11 @@ inline YamlCppObjectMemberIterator YamlCppObject::end() const
 inline YamlCppObjectMemberIterator YamlCppObject::find(
     const std::string &propertyName) const
 {
-#if 0
     for (auto itr = node.begin(); itr != node.end(); ++itr) {
-        if (itr->first == propertyName) {
+        if (itr->first.as<std::string>() == propertyName) {
             return itr;
         }
     }
-#endif
 
     return node.end();
 }
@@ -610,12 +608,5 @@ int main(int argc, char **argv)
     }
 
     YAML::Node schema = YAML::LoadFile(argv[1]);
-    std::cout << schema << std::endl;
-    std::cout << schema.Scalar() << std::endl;
-    for (auto itr = schema.begin(); itr != schema.end(); ++itr)
-    {
-        std::cout << itr->first << std::endl;
-    }
-
     YamlCppAdapter schemaAdapter(schema);
 }
