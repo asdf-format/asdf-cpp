@@ -353,7 +353,7 @@ class YamlCppNode
 
         bool isObject() const
         {
-            return isNull() && node.IsMap();
+            return !isNull() && node.IsMap();
         }
 
         bool isNull() const
