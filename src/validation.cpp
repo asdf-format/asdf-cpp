@@ -507,7 +507,7 @@ public:
      */
     YamlCppObjectMember operator*() const
     {
-        return YamlCppObjectMember(itr->first.as<std::string>(), *itr);
+        return YamlCppObjectMember(itr->first.as<std::string>(), itr->second);
     }
 
     DerefProxy<YamlCppObjectMember> operator->() const
