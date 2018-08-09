@@ -383,8 +383,17 @@ class YamlCppAdapter:
     public:
 
         YamlCppAdapter() : BasicAdapter() { }
-        YamlCppAdapter(const YAML::Node &node) : BasicAdapter(node) { }
+        YamlCppAdapter(const YAML::Node &node) : BasicAdapter(node), node(node)
+            { }
 
+
+        bool maybeString() const
+        {
+            return !(node.isObject() || node.isArray()) ;
+        }
+
+    private:
+        const YamlCppNode node;
 };
 
 
