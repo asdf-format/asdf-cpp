@@ -392,6 +392,28 @@ class YamlCppAdapter:
             return !(node.isObject() || node.isArray()) ;
         }
 
+        std::string asString() const
+        {
+            std::string result;
+            if (asString(result))
+            {
+                return result;
+            }
+
+            throw std::runtime_error("YAML value cannot be cast to string");
+        }
+
+        bool asString(std::string &result) const
+        {
+            if (maybeString())
+            {
+                node.getString(result);
+                return true;
+            }
+
+            return false;
+        }
+
     private:
         const YamlCppNode node;
 };
