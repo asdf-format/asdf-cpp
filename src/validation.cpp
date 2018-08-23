@@ -225,7 +225,7 @@ class YamlCppNode
     public:
 
         YamlCppNode() : node(emptyObject()) { }
-        YamlCppNode(const YAML::Node &node) : node(node) { }
+        YamlCppNode(const YAML::Node node) : node(node) { }
 
         /**
          * @brief   Create a new YamlCppFrozenNode instance that contains the
@@ -369,7 +369,7 @@ class YamlCppNode
             return object;
         }
 
-        const YAML::Node &node;
+        const YAML::Node node;
 };
 
 
@@ -382,8 +382,8 @@ class YamlCppAdapter:
 {
     public:
 
-        YamlCppAdapter() : BasicAdapter() { }
-        YamlCppAdapter(const YAML::Node &node) : BasicAdapter(node), node(node)
+        YamlCppAdapter() : BasicAdapter(), node() { }
+        YamlCppAdapter(const YAML::Node node) : BasicAdapter(node), node(node)
             { }
 
 
