@@ -42,8 +42,8 @@ set_property(TARGET yaml-cpp PROPERTY IMPORTED_LOCATION ${YAML_LIBRARIES})
 add_dependencies( yaml-cpp yaml-cpp-extern-build )
 
 # Look for optional compression packages
-find_package(zlib)
-find_package(bzip2)
+find_package(ZLIB)
+find_package(BZip2)
 
 set( INCLUDE_DIR include )
 include_directories( ${INCLUDE_DIR} ${YAML_INCLUDE_DIR} )
