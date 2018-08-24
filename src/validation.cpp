@@ -644,6 +644,35 @@ struct valijson::adapters::AdapterTraits<YamlCppAdapter>
 };
 
 
+class AsdfSchemaParser : public valijson::SchemaParser
+{
+    /* Overridden from implementation in Schema parser */
+    opt::optional<std::string> findAbsoluteDocumentUri(
+            const opt::optional<std::string> resolutionScope,
+            const opt::optional<std::string> documentUri)
+    {
+        namespace internal = valijson::internal;
+
+        std::string base = "/Users/ddavella/asdf/asdf-standard/schemas/stsci.edu/asdf/core/";
+        return base + documentUri.value() + ".yaml";
+    }
+};
+
+
+const YAML::Node * fetchYamlDoc(const std::string &uri)
+{
+    YAML::Node temp = YAML::LoadFile(uri);
+    YAML::Node *node = new YAML::Node(temp);
+    return node;
+}
+
+
+void freeYamlDoc(const YAML::Node *node)
+{
+    delete node;
+}
+
+
 int main(int argc, char **argv)
 {
     if (argc != 3)
@@ -655,7 +684,7 @@ int main(int argc, char **argv)
     YAML::Node yaml_schema = YAML::LoadFile(argv[1]);
 
     valijson::Schema schema;
-    valijson::SchemaParser parser;
+    AsdfSchemaParser parser;
     YamlCppAdapter schemaAdapter(yaml_schema);
-    parser.populateSchema(schemaAdapter, schema);
+    parser.populateSchema(schemaAdapter, schema, fetchYamlDoc, freeYamlDoc);
 }
