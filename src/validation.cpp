@@ -392,23 +392,6 @@ class YamlCppAdapter:
             return !(node.isObject() || node.isArray()) ;
         }
 
-        virtual bool maybeBool() const
-        {
-            if (maybeString())
-            {
-                std::string stringValue;
-                if (node.getString(stringValue))
-                {
-                    if (stringValue.compare("true") == 0 || stringValue.compare("false") == 0)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
         std::string asString() const
         {
             std::string result;
@@ -429,32 +412,6 @@ class YamlCppAdapter:
             }
 
             return false;
-        }
-
-        bool asBool(bool &result) const
-        {
-            std::string s;
-            if (node.getString(s)) {
-                if (s.compare("true") == 0) {
-                    result = true;
-                    return true;
-                } else if (s.compare("false") == 0) {
-                    result = false;
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        bool asBool() const
-        {
-            bool result;
-            if (asBool(result)) {
-                return result;
-            }
-
-            throw std::runtime_error("JSON value cannot be cast to a boolean.");
         }
 
     private:
