@@ -24,12 +24,17 @@ int main(int argc, char **argv)
         nums[i] = i;
     }
 
-    tree["zlib_data"] = Asdf::NDArray<int>(nums, array_size, CompressionType::zlib);
+    auto zlib_array_ref = asdf.create_data_block<int>(nums, array_size,
+                                                      CompressionType::zlib);
+    tree["zlib_data"] = zlib_array_ref;
+
     /*
      * For now this will simply make a copy of the data, so no need to create a
      * new array for testing purposes.
      */
-    tree["bzp2_data"] = Asdf::NDArray<int>(nums, array_size, CompressionType::bzip2);
+    auto bzip2_array_ref = asdf.create_data_block<int>(nums, array_size,
+                                                       CompressionType::bzip2);
+    tree["bzp2_data"] = bzip2_array_ref;
 
     std::ofstream outfile(argv[1]);
     outfile << asdf;

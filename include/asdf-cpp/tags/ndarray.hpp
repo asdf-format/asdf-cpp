@@ -2,10 +2,10 @@
 
 #include <vector>
 #include <sstream>
-#include <numeric>
 #include <type_traits>
 #include <yaml-cpp/yaml.h>
 
+#include "../node.hpp"
 #include "../datatypes.hpp"
 #include "../compression.hpp"
 #include "../block.hpp"
@@ -39,11 +39,14 @@ static inline std::string get_system_byte_order()
 
 namespace Asdf {
 
+/* Forward declaration of AsdfFile */
+class AsdfFile;
+
 template <typename T>
 class NDArray
 {
     public:
-        NDArray(T *data, std::vector<size_t> shape,
+        NDArray(int source, std::vector<size_t> shape,
                 CompressionType compression = CompressionType::none)
         {
             if (compression == unknown)
@@ -52,17 +55,20 @@ class NDArray
                 throw std::runtime_error(msg);
             }
 
-            this->data = data;
+            this->source = source;
             this->byteorder = get_system_byte_order();
             this->shape = shape;
             this->datatype = dtype_to_string<T>();
             this->compression = compression;
         }
 
+        /* Default constructor */
+        NDArray() { };
+
         /* Simple constructor for a 1D array */
-        NDArray(T *data, size_t shape,
+        NDArray(int source, T *data, size_t shape,
                 CompressionType compression = CompressionType::none) :
-            NDArray(data, std::vector<size_t> { shape }, compression) {}
+            NDArray(source, data, std::vector<size_t> { shape }, compression) {}
 
         int get_source() const
         {
@@ -76,15 +82,13 @@ class NDArray
 
         T * get_raw_data(void)
         {
-            const uint8_t *block_data = (const uint8_t *) file->get_block(source);
-            const block_header_t *header = (const block_header_t *) block_data;
-            return  (T *)(block_data + header->total_header_size());
+            const block_header_t *header = (const block_header_t *) block_ptr;
+            return  (T *)(block_ptr + header->total_header_size());
         }
 
         CompressionType get_compression_type(void) const
         {
-            const uint8_t *block_data = (const uint8_t *) file->get_block(source);
-            const block_header_t *header = (const block_header_t *) block_data;
+            const block_header_t *header = (const block_header_t *) block_ptr;
             CompressionType ct = header->get_compression();
             if (ct == unknown)
             {
@@ -101,10 +105,9 @@ class NDArray
 
         std::shared_ptr<T> read(void)
         {
-            const uint8_t *block_data = (const uint8_t *) file->get_block(source);
-            const block_header_t *header = (const block_header_t *) block_data;
+            const block_header_t *header = (const block_header_t *) block_ptr;
 
-            T *ptr = static_cast<T *>(process_block_data(block_data));
+            T *ptr = static_cast<T *>(process_block_data(block_ptr));
 
             if (byteorder != system_byte_order)
             {
@@ -115,7 +118,7 @@ class NDArray
         }
 
     protected:
-        friend class Node;
+        friend class AsdfFile;
         friend struct YAML::convert<Asdf::NDArray<T>>;
         friend struct YAML::as_if<Asdf::NDArray<T>, void>;
 
@@ -123,17 +126,15 @@ class NDArray
         std::string datatype;
         std::string byteorder;
         std::vector<size_t> shape;
+        const uint8_t *block_ptr;
         CompressionType compression = CompressionType::none;
-        const AsdfFile *file;
-
-        NDArray() { file = nullptr; }
 
         /*
          * This constructor is called when creating a new NDArray object from a
          * YAML representation (in the "decode" method defined below). It is
          * protected since it will never be used by application code.
          */
-        NDArray(int source, std::vector<size_t> shape, std::string datatype, const AsdfFile *file)
+        NDArray(int source, std::vector<size_t> shape, std::string datatype)
         {
             if (not dtype_matches<T>(datatype))
             {
@@ -144,23 +145,11 @@ class NDArray
             this->source = source;
             this->shape = shape;
             this->datatype = datatype;
-            this->file = file;
         }
 
-        /* 
-         * This callback is used to register the associated NDArray data as a
-         * data block with the parent AsdfFile object. It is called when the
-         * associated Asdf Node is assigned to the tree.
-         */
-        int register_array_block(AsdfFile *file) const
+        void set_array_block(const void *block_ptr)
         {
-            using std::accumulate;
-            using std::multiplies;
-            using std::begin;
-            using std::end;
-
-            auto size = accumulate(begin(shape), end(shape), 1, multiplies<size_t>());
-            return file->register_array_block<T>(data, size, compression);
+            this->block_ptr = (const uint8_t *) block_ptr;
         }
 
         friend std::ostream&
@@ -178,10 +167,6 @@ class NDArray
 
             return strm;
         }
-
-    private:
-        T * data = nullptr;
-
 };
 
 } /* namespace Asdf */
@@ -232,8 +217,7 @@ struct convert<Asdf::NDArray<T>>
         auto shape = node["shape"].as<std::vector<size_t>>();
         auto datatype = node["datatype"].as<std::string>();
 
-        const Asdf::Node& asdf_node = static_cast<const Asdf::Node &>(node);
-        array = Asdf::NDArray<T>(source, shape, datatype, asdf_node.get_asdf_file());
+        array = Asdf::NDArray<T>(source, shape, datatype);
 
         return true;
     }
