@@ -15,6 +15,15 @@
 #define NDARRAY_TAG_VERSION "1.0.0"
 #define NDARRAY_TAG         (NDARRAY_TAG_BASE "-" NDARRAY_TAG_VERSION)
 
+#define CHECK_ARRAY_READABLE                                    \
+    if (not read_allowed)                                       \
+    {                                                           \
+        throw std::runtime_error(                               \
+            "Can't access array data: "                         \
+            "no data block is associated with this array"       \
+        );                                                      \
+    }
+
 
 static std::string system_byte_order = "";
 
@@ -58,12 +67,16 @@ class NDArray
 
         T * get_raw_data(void)
         {
+            CHECK_ARRAY_READABLE;
+
             const block_header_t *header = (const block_header_t *) block_ptr;
             return  (T *)(block_ptr + header->total_header_size());
         }
 
         CompressionType get_compression_type(void) const
         {
+            CHECK_ARRAY_READABLE;
+
             const block_header_t *header = (const block_header_t *) block_ptr;
             CompressionType ct = header->get_compression();
             if (ct == unknown)
@@ -81,6 +94,8 @@ class NDArray
 
         std::shared_ptr<T> read(void)
         {
+            CHECK_ARRAY_READABLE;
+
             const block_header_t *header = (const block_header_t *) block_ptr;
 
             T *ptr = static_cast<T *>(process_block_data(block_ptr));
@@ -104,6 +119,8 @@ class NDArray
         std::vector<size_t> shape;
         const uint8_t *block_ptr;
         CompressionType compression = CompressionType::none;
+        bool read_allowed = false;
+
         /* Default constructor */
         NDArray() { };
 
@@ -153,6 +170,7 @@ class NDArray
         void set_array_block(const void *block_ptr)
         {
             this->block_ptr = (const uint8_t *) block_ptr;
+            this->read_allowed = true;
         }
 
         friend std::ostream&
