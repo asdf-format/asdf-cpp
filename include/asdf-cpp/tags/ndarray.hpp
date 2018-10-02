@@ -46,30 +46,6 @@ template <typename T>
 class NDArray
 {
     public:
-        NDArray(int source, std::vector<size_t> shape,
-                CompressionType compression = CompressionType::none)
-        {
-            if (compression == unknown)
-            {
-                std::string msg("'unknown' is not a valid option for array compression");
-                throw std::runtime_error(msg);
-            }
-
-            this->source = source;
-            this->byteorder = get_system_byte_order();
-            this->shape = shape;
-            this->datatype = dtype_to_string<T>();
-            this->compression = compression;
-        }
-
-        /* Default constructor */
-        NDArray() { };
-
-        /* Simple constructor for a 1D array */
-        NDArray(int source, T *data, size_t shape,
-                CompressionType compression = CompressionType::none) :
-            NDArray(source, data, std::vector<size_t> { shape }, compression) {}
-
         int get_source() const
         {
             return source;
@@ -128,6 +104,33 @@ class NDArray
         std::vector<size_t> shape;
         const uint8_t *block_ptr;
         CompressionType compression = CompressionType::none;
+        /* Default constructor */
+        NDArray() { };
+
+        /*
+         * This constructor is called when creating a new array node to be
+         * stored in the tree.
+         */
+        NDArray(int source, std::vector<size_t> shape,
+                CompressionType compression = CompressionType::none)
+        {
+            if (compression == unknown)
+            {
+                std::string msg("'unknown' is not a valid option for array compression");
+                throw std::runtime_error(msg);
+            }
+
+            this->source = source;
+            this->byteorder = get_system_byte_order();
+            this->shape = shape;
+            this->datatype = dtype_to_string<T>();
+            this->compression = compression;
+        }
+
+        /* Simple constructor for a 1D array */
+        NDArray(int source, T *data, size_t shape,
+                CompressionType compression = CompressionType::none) :
+            NDArray(source, data, std::vector<size_t> { shape }, compression) {}
 
         /*
          * This constructor is called when creating a new NDArray object from a
