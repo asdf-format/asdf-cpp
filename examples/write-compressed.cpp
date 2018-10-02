@@ -24,7 +24,7 @@ int main(int argc, char **argv)
         nums[i] = i;
     }
 
-    auto zlib_array_ref = asdf.create_data_block<int>(nums, array_size,
+    auto zlib_array_ref = asdf.create_array_node<int>(nums, array_size,
                                                       CompressionType::zlib);
     tree["zlib_data"] = zlib_array_ref;
 
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
      * For now this will simply make a copy of the data, so no need to create a
      * new array for testing purposes.
      */
-    auto bzip2_array_ref = asdf.create_data_block<int>(nums, array_size,
+    auto bzip2_array_ref = asdf.create_array_node<int>(nums, array_size,
                                                        CompressionType::bzip2);
     tree["bzp2_data"] = bzip2_array_ref;
 

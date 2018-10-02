@@ -34,16 +34,16 @@ class AsdfFile
         friend std::ostream&
             operator<<(std::ostream& stream, const AsdfFile &af);
 
-        template <typename T> NDArray<T> create_data_block(
+        template <typename T> NDArray<T> create_array_node(
             T *data,
             size_t size,
             CompressionType compression = CompressionType::none)
         {
-            return create_data_block(data, std::vector<size_t> { size },
+            return create_array_node(data, std::vector<size_t> { size },
                                      compression);
         }
 
-        template <typename T> NDArray<T> create_data_block(
+        template <typename T> NDArray<T> create_array_node(
             T *data,
             std::vector<size_t> shape,
             CompressionType compression = CompressionType::none)

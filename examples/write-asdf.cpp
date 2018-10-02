@@ -34,7 +34,7 @@ int main(int argc, char **argv)
      * Store the array to the tree using NDArray. It is necessary to specify
      * both the type and the size of the array at compile time.
      */
-    auto int_array_ref = asdf.create_data_block<int>(nums, array_size);
+    auto int_array_ref = asdf.create_array_node<int>(nums, array_size);
     tree["array"] = int_array_ref;
 
     /* Create 2D array of integers */
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     auto shape = std::vector<size_t> { 10, 20 };
 
     /* Create the data block in the ASDF file */
-    auto int_2darray_ref = asdf.create_data_block<int>((int *) array_2d, shape);
+    auto int_2darray_ref = asdf.create_array_node<int>((int *) array_2d, shape);
     /* Assign the array to a new node in the tree */
     tree["2darray"] = int_2darray_ref;
 
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
         alphabet[i] = 'a' + (char) i;
     }
 
-    auto char_array_ref = asdf.create_data_block<char>(alphabet, 26);
+    auto char_array_ref = asdf.create_array_node<char>(alphabet, 26);
     tree["alphabet"] = char_array_ref;
 
 
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
         random.push_back(dist(engine));
     }
 
-    auto random_array_ref = asdf.create_data_block<double>(random.data(), random.size());
+    auto random_array_ref = asdf.create_array_node<double>(random.data(), random.size());
     tree["random"] = random_array_ref;
 
     /* Create an output file stream and write the ASDF file contents */

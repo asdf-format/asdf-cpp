@@ -27,7 +27,7 @@ TEST(ReaderTest, FromStream)
         nums.push_back(i);
     }
 
-    tree["nums"] = asdf.create_data_block<int>(nums.data(), nums.size());
+    tree["nums"] = asdf.create_array_node<int>(nums.data(), nums.size());
 
     std::stringstream asdf_stream;
     asdf_stream << asdf;
