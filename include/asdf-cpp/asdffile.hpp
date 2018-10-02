@@ -70,13 +70,10 @@ class AsdfFile
             return array;
         }
 
-    protected:
-        BlockManager block_manager;
-
-        void write_blocks(std::ostream &ostream) const;
-
     private:
         /* Private members */
+        BlockManager block_manager;
+
         Node asdf_tree;
 
         int fd = -1;
@@ -91,6 +88,7 @@ class AsdfFile
         std::vector<uint8_t *> blocks;
 
         /* Private methods */
+        void write_blocks(std::ostream &ostream) const;
         void setup_memmap(std::string filename);
         void copy_stream(std::iostream &stream);
 

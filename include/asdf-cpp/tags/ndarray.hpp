@@ -117,7 +117,7 @@ class NDArray
             return std::shared_ptr<T>(ptr);
         }
 
-    protected:
+    private:
         friend class AsdfFile;
         friend struct YAML::convert<Asdf::NDArray<T>>;
         friend struct YAML::as_if<Asdf::NDArray<T>, void>;
@@ -132,7 +132,7 @@ class NDArray
         /*
          * This constructor is called when creating a new NDArray object from a
          * YAML representation (in the "decode" method defined below). It is
-         * protected since it will never be used by application code.
+         * private since it will never be used by application code.
          */
         NDArray(int source, std::vector<size_t> shape, std::string datatype)
         {
