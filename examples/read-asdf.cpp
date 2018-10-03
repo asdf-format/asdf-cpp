@@ -28,7 +28,7 @@ int main(int argc, char **argv)
      * Read the NDArray that is stored at this node. The application must know
      * the underlying data type of the array at compile time.
      */
-    auto array = tree["array"].as<Asdf::NDArray<int>>();
+    auto array = asdf.get_array<int>(tree["array"]);
     std::cout << array << std::endl;
 
     /* Demonstrate API for getting NDArray compression type */
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
         assert(ddata[i] == i);
     }
 
-    auto array_2d = tree["2darray"].as<Asdf::NDArray<int>>();
+    auto array_2d = asdf.get_array<int>(tree["2darray"]);
     std::cout << array_2d << std::endl;
 
     /* Confirm that the array is in fact two dimensional */
@@ -72,7 +72,7 @@ int main(int argc, char **argv)
         }
     }
 
-    auto alphabet = tree["alphabet"].as<Asdf::NDArray<char>>();
+    auto alphabet = asdf.get_array<char>(tree["alphabet"]);
     std::cout << alphabet << std::endl;
 
     char *alpha_buff = alphabet.get_raw_data();
@@ -81,7 +81,7 @@ int main(int argc, char **argv)
         assert(alpha_buff[i] == 'a' + (char) i);
     }
 
-    auto random = tree["random"].as<Asdf::NDArray<double>>();
+    auto random = asdf.get_array<double>(tree["random"]);
     std::cout << random << std::endl;
 
     /* Use same seed for random engine as was used to create the file */
@@ -93,5 +93,4 @@ int main(int argc, char **argv)
     {
         assert(rand_buff[i] == dist(engine));
     }
-
 }

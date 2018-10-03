@@ -27,7 +27,7 @@ TEST(ReaderTest, FromStream)
         nums.push_back(i);
     }
 
-    tree["nums"] = NDArray<int>(nums.data(), nums.size());
+    tree["nums"] = asdf.create_array_node<int>(nums.data(), nums.size());
 
     std::stringstream asdf_stream;
     asdf_stream << asdf;
@@ -36,7 +36,7 @@ TEST(ReaderTest, FromStream)
     Node new_tree = new_asdf.get_tree();
     EXPECT_EQ(new_tree["top"].as<std::string>(), "hello");
 
-    auto num_array = new_tree["nums"].as<NDArray<int>>();
+    auto num_array = new_asdf.get_array<int>(new_tree["nums"]);
     int *data = num_array.get_raw_data();
     for (int i = 0; i < 100; i++)
     {

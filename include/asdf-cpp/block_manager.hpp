@@ -15,7 +15,7 @@ class GenericBlock {
     public:
         GenericBlock(void) {}
 
-    protected:
+    private:
         friend class BlockManager;
 
         virtual void write(std::ostream &ostream) const = 0;
@@ -36,7 +36,7 @@ class Block : public GenericBlock {
             this->compression = compression;
         }
 
-    protected:
+    private:
         friend class BlockManager;
 
         void write(std::ostream &ostream) const
@@ -129,7 +129,7 @@ class BlockManager {
             return source_idx;
         }
 
-    protected:
+    private:
         std::vector<std::shared_ptr<GenericBlock>> blocks;
 };
 

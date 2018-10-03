@@ -19,8 +19,9 @@ include(ExternalProject)
 # For now use this fork/branch of yaml-cpp until changes are integrated upstream
 ExternalProject_Add(yaml-cpp-extern
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/yaml-cpp
-    GIT_REPOSITORY https://github.com/drdavella/yaml-cpp
-    GIT_TAG easier-to-inherit
+    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp
+    # Use a stable tag here rather than being at the mercy mf master
+    GIT_TAG yaml-cpp-0.6.2
     STEP_TARGETS build install
     CMAKE_ARGS "-DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}"
     EXCLUDE_FROM_ALL TRUE

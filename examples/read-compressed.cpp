@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     Asdf::Node tree = asdf.get_tree();
 
     /* Read array that is known to be compressed with zlib */
-    auto zlib_array = tree["zlib_data"].as<NDArray<int>>();
+    auto zlib_array = asdf.get_array<int>(tree["zlib_data"]);
     std::cout << zlib_array << std::endl;
 
     /* Demonstrate methods for accessing compression state */
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
     verify(zlib_data, zlib_array.get_shape()[0]);
 
     /* Read array that is known to be compressed with bzp2 */
-    auto bzp2_array = tree["bzp2_data"].as<NDArray<int>>();
+    auto bzp2_array = asdf.get_array<int>(tree["bzp2_data"]);
     std::cout << bzp2_array << std::endl;
 
     assert(bzp2_array.get_compression_type() == CompressionType::bzip2);
