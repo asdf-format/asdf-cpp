@@ -14,7 +14,7 @@ namespace Asdf {
 class GenericBlock {
     public:
         GenericBlock(void) {}
-
+        virtual ~GenericBlock() {};
     private:
         friend class BlockManager;
 
