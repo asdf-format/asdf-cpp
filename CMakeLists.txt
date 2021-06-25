@@ -47,7 +47,9 @@ find_package(ZLIB)
 find_package(BZip2)
 
 set( INCLUDE_DIR include )
+set( VALIJSON_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/extern/valijson/include" )
 include_directories( ${INCLUDE_DIR} ${YAML_INCLUDE_DIR} )
+include_directories( SYSTEM ${VALIJSON_INCLUDE_DIR} )
 
 set(asdf_c_flags ${CMAKE_C_FLAGS})
 set(asdf_cxx_flags ${CMAKE_CXX_FLAGS})
@@ -63,6 +65,9 @@ target_link_libraries( asdf-cpp yaml-cpp )
 set_target_properties(asdf-cpp PROPERTIES
   COMPILE_FLAGS "${asdf_c_flags} ${asdf_cxx_flags}"
 )
+
+add_executable( validator src/validation.cpp )
+target_link_libraries( validator yaml-cpp )
 
 if (${ZLIB_FOUND})
     target_compile_definitions(asdf-cpp PRIVATE HAS_ZLIB=1)

@@ -1,3 +1,6 @@
 [submodule "tests/googletest"]
 	path = tests/googletest
 	url = https://github.com/google/googletest
+[submodule "extern/valijson"]
+	path = extern/valijson
+	url = https://github.com/tristanpenman/valijson
